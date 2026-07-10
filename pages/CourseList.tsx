@@ -5,7 +5,9 @@ import { PlayCircle, Clock, CheckCircle, Info, X } from 'lucide-react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import { Course } from '../types';
 
-const CourseCard: React.FC<{ course: Course; isCompleted: boolean; onShowVisual: (c: Course) => void }> = ({ course, isCompleted, onShowVisual }) => {
+const CourseCard: React.FC<{ course: Course; isCompleted: boolean; isCompulsory: boolean; onShowVisual: (c: Course) => void }> = ({ course, isCompleted, isCompulsory, onShowVisual }) => {
+    const [imgError, setImgError] = useState(false);
+    
     // Data for radar chart
     const radarData = [
         { subject: '邏輯', A: course.attributes?.logic || 50 },
@@ -19,7 +21,19 @@ const CourseCard: React.FC<{ course: Course; isCompleted: boolean; onShowVisual:
         <div className="group bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all flex flex-col md:flex-row h-auto md:h-52">
             {/* Left: Image */}
             <Link to={`/course/${course.id}`} className="block relative w-full md:w-1/3 h-48 md:h-full bg-gray-200 flex-shrink-0">
-                <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover" />
+                {(!course.thumbnail || imgError) ? (
+                    <div className="w-full h-full bg-gradient-to-br from-brand-600 to-indigo-800 flex flex-col items-center justify-center p-4 text-white">
+                        <PlayCircle className="h-10 w-10 mb-2 opacity-80" />
+                        <span className="font-bold text-center text-sm line-clamp-2">{course.title}</span>
+                    </div>
+                ) : (
+                    <img 
+                        src={course.thumbnail} 
+                        alt={course.title} 
+                        className="w-full h-full object-cover" 
+                        onError={() => setImgError(true)}
+                    />
+                )}
                 <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all flex items-center justify-center">
                     <PlayCircle className="text-white opacity-0 group-hover:opacity-100 transform scale-90 group-hover:scale-110 transition-all h-16 w-16 drop-shadow-lg" />
                 </div>
@@ -28,7 +42,7 @@ const CourseCard: React.FC<{ course: Course; isCompleted: boolean; onShowVisual:
                         <CheckCircle className="h-3 w-3" /> 已完成
                     </div>
                 )}
-                <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded z-10">
                     {course.category}
                 </div>
             </Link>
@@ -40,7 +54,7 @@ const CourseCard: React.FC<{ course: Course; isCompleted: boolean; onShowVisual:
                         <h3 className="text-lg font-bold text-slate-900 group-hover:text-brand-600 transition-colors mb-2 line-clamp-1">
                             <Link to={`/course/${course.id}`}>{course.title}</Link>
                         </h3>
-                        {course.type === 'compulsory' && <span className="bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full font-bold whitespace-nowrap ml-2">推薦</span>}
+                        {isCompulsory && <span className="bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full font-bold whitespace-nowrap ml-2">推薦/必修</span>}
                     </div>
                     <p className="text-sm text-slate-500 line-clamp-3 mb-4">
                         {course.description}
@@ -83,11 +97,22 @@ const CourseCard: React.FC<{ course: Course; isCompleted: boolean; onShowVisual:
 };
 
 const CourseList: React.FC = () => {
-  const { courses, getCourseProgress } = useStore();
+  const { courses, getCourseProgress, user } = useStore();
   const [visualModalCourse, setVisualModalCourse] = useState<Course | null>(null);
 
-  const recommendedCourses = courses.filter(c => c.type === 'compulsory');
-  const electiveCourses = courses.filter(c => c.type === 'elective');
+  const isCourseCompulsory = (course: Course): boolean => {
+    if (course.type === 'compulsory') return true;
+    if (user && course.compulsoryTargets) {
+      const depts = course.compulsoryTargets.departments || [];
+      const uids = course.compulsoryTargets.userIds || [];
+      if (depts.includes(user.department)) return true;
+      if (uids.includes(user.id)) return true;
+    }
+    return false;
+  };
+
+  const recommendedCourses = courses.filter(c => isCourseCompulsory(c));
+  const electiveCourses = courses.filter(c => !isCourseCompulsory(c));
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -133,14 +158,15 @@ const CourseList: React.FC = () => {
           <section>
               <h2 className="text-xl font-bold text-slate-800 mb-4 border-l-4 border-brand-500 pl-3">推薦/必修課程</h2>
               <div className="grid grid-cols-1 gap-6">
-                  {recommendedCourses.map(course => (
-                      <CourseCard 
-                        key={course.id} 
-                        course={course} 
-                        isCompleted={!!getCourseProgress(course.id)?.completed} 
-                        onShowVisual={setVisualModalCourse}
-                      />
-                  ))}
+                   {recommendedCourses.map(course => (
+                       <CourseCard 
+                         key={course.id} 
+                         course={course} 
+                         isCompleted={!!getCourseProgress(course.id)?.completed} 
+                         isCompulsory={true}
+                         onShowVisual={setVisualModalCourse}
+                       />
+                   ))}
               </div>
           </section>
 
@@ -148,14 +174,15 @@ const CourseList: React.FC = () => {
           <section>
               <h2 className="text-xl font-bold text-slate-800 mb-4 border-l-4 border-green-500 pl-3">選修課程</h2>
               <div className="grid grid-cols-1 gap-6">
-                  {electiveCourses.map(course => (
-                      <CourseCard 
-                        key={course.id} 
-                        course={course} 
-                        isCompleted={!!getCourseProgress(course.id)?.completed} 
-                        onShowVisual={setVisualModalCourse}
-                      />
-                  ))}
+                   {electiveCourses.map(course => (
+                       <CourseCard 
+                         key={course.id} 
+                         course={course} 
+                         isCompleted={!!getCourseProgress(course.id)?.completed} 
+                         isCompulsory={false}
+                         onShowVisual={setVisualModalCourse}
+                       />
+                   ))}
               </div>
           </section>
 

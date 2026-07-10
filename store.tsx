@@ -146,33 +146,141 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setAllUsers(prev => prev.map(u => u.id === user.id ? updatedUser : u));
   };
 
-  // --- Admin Actions (Local state only for prototype) ---
+  // --- Admin Actions (Persisted to SQLite database) ---
 
-  const addCourse = (course: Course) => {
-    setCourses(prev => [...prev, course]);
-  };
-
-  const updateCourse = (updatedCourse: Course) => {
-    setCourses(prev => prev.map(c => c.id === updatedCourse.id ? updatedCourse : c));
-  };
-
-  const deleteCourse = (id: string) => {
-    setCourses(prev => prev.filter(c => c.id !== id));
-  };
-
-  const addUser = (newUser: User) => {
-    setAllUsers(prev => [...prev, newUser]);
-  };
-
-  const updateUser = (updatedUser: User) => {
-    setAllUsers(prev => prev.map(u => u.id === updatedUser.id ? updatedUser : u));
-    if (user && user.id === updatedUser.id) {
-      setUser(updatedUser);
+  const addCourse = async (course: Course) => {
+    const token = localStorage.getItem('nexus_token');
+    try {
+      const res = await fetch('/api/courses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(course)
+      });
+      if (res.ok) {
+        const savedCourse = await res.json();
+        setCourses(prev => [...prev.filter(c => c.id !== savedCourse.id), savedCourse]);
+      } else {
+        alert('建立課程失敗');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('建立課程發生錯誤');
     }
   };
 
-  const deleteUser = (id: string) => {
-    setAllUsers(prev => prev.filter(u => u.id !== id));
+  const updateCourse = async (updatedCourse: Course) => {
+    const token = localStorage.getItem('nexus_token');
+    try {
+      const res = await fetch(`/api/courses/${updatedCourse.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(updatedCourse)
+      });
+      if (res.ok) {
+        const savedCourse = await res.json();
+        setCourses(prev => prev.map(c => c.id === savedCourse.id ? savedCourse : c));
+      } else {
+        alert('更新課程失敗');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('更新課程發生錯誤');
+    }
+  };
+
+  const deleteCourse = async (id: string) => {
+    const token = localStorage.getItem('nexus_token');
+    try {
+      const res = await fetch(`/api/courses/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (res.ok) {
+        setCourses(prev => prev.filter(c => c.id !== id));
+      } else {
+        alert('刪除課程失敗');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('刪除課程發生錯誤');
+    }
+  };
+
+  const addUser = async (newUser: User) => {
+    const token = localStorage.getItem('nexus_token');
+    try {
+      const res = await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(newUser)
+      });
+      if (res.ok) {
+        const savedUser = await res.json();
+        setAllUsers(prev => [...prev.filter(u => u.id !== savedUser.id), savedUser]);
+      } else {
+        alert('新增使用者失敗，請確認員工編號是否重複');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('新增使用者發生錯誤');
+    }
+  };
+
+  const updateUser = async (updatedUser: User) => {
+    const token = localStorage.getItem('nexus_token');
+    try {
+      const res = await fetch(`/api/users/${updatedUser.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(updatedUser)
+      });
+      if (res.ok) {
+        const savedUser = await res.json();
+        setAllUsers(prev => prev.map(u => u.id === savedUser.id ? savedUser : u));
+        if (user && user.id === savedUser.id) {
+          setUser(savedUser);
+        }
+      } else {
+        alert('更新使用者失敗');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('更新使用者發生錯誤');
+    }
+  };
+
+  const deleteUser = async (id: string) => {
+    const token = localStorage.getItem('nexus_token');
+    try {
+      const res = await fetch(`/api/users/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (res.ok) {
+        setAllUsers(prev => prev.filter(u => u.id !== id));
+      } else {
+        alert('刪除使用者失敗');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('刪除使用者發生錯誤');
+    }
   };
 
   // --- Getters ---

@@ -8,12 +8,12 @@ const getHeaders = () => {
     };
 };
 
-export const askAiTutor = async (courseTitle: string, question: string): Promise<string> => {
+export const askAiTutor = async (courseId: string, courseTitle: string, question: string): Promise<string> => {
   try {
     const res = await fetch('/api/chat', {
         method: 'POST',
         headers: getHeaders(),
-        body: JSON.stringify({ courseTitle, question })
+        body: JSON.stringify({ courseId, courseTitle, question })
     });
     if (!res.ok) throw new Error('API Error');
     const data = await res.json();

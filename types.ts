@@ -45,6 +45,7 @@ export interface TalentProfileData {
 
 export interface User {
   id: string;
+  employeeId: string;
   name: string;
   email: string;
   internalEmail?: string; // New: Internal Email
@@ -72,6 +73,11 @@ export interface CourseAttributes {
 
 export type CourseType = 'compulsory' | 'elective';
 
+export interface CompulsoryTargets {
+  departments: string[];
+  userIds: string[];
+}
+
 export interface Course {
   id: string;
   title: string;
@@ -87,6 +93,7 @@ export interface Course {
   durationSeconds: number; 
   attributes: CourseAttributes; 
   questions: Question[];
+  compulsoryTargets?: CompulsoryTargets;
 }
 
 export interface CourseProgress {

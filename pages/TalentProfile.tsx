@@ -5,6 +5,7 @@ import { User, TalentProfileData } from '../types';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine } from 'recharts';
 import { User as UserIcon, Calendar, TrendingUp, Grid, Sparkles, MapPin, HelpCircle, Tag } from 'lucide-react';
 import { generateCareerAdvice } from '../services/gemini';
+import Avatar from '../components/Avatar';
 
 const NineBoxGrid: React.FC<{ metrics: any }> = ({ metrics }) => {
   const getCellClass = (p: string, pt: string) => {
@@ -112,7 +113,7 @@ const TalentProfile: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header Profile Card */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8 flex flex-col md:flex-row gap-8 items-start">
-        <img src={targetUser.avatar} alt={targetUser.name} className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg" />
+        <Avatar src={targetUser.avatar} name={targetUser.name} className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg" />
         <div className="flex-1">
           <div className="flex justify-between items-start">
             <div>

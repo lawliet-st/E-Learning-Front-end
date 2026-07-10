@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useStore } from '../store';
 import { User, Skill, PerformanceRecord } from '../types';
 import { Trash2, Edit, Plus, Save, X } from 'lucide-react';
+import Avatar from '../components/Avatar';
 
 const AdminUserManagement: React.FC = () => {
   const { allUsers, addUser, updateUser, deleteUser } = useStore();
@@ -11,6 +12,7 @@ const AdminUserManagement: React.FC = () => {
   // Empty user template
   const emptyUser: User = {
     id: '',
+    employeeId: '',
     name: '',
     email: '',
     internalEmail: '',
@@ -132,6 +134,10 @@ const AdminUserManagement: React.FC = () => {
              <h2 className="font-bold text-lg mb-4">{isAdding ? '新增員工' : '編輯員工資料'}</h2>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
+                    <label className="block text-xs text-gray-500">員工編號 (帳號)</label>
+                    <input name="employeeId" disabled={!!isEditing} value={formData.employeeId} onChange={handleChange} className="w-full border p-2 rounded bg-slate-50 disabled:bg-slate-100" placeholder="例如: E10001" />
+                </div>
+                <div>
                     <label className="block text-xs text-gray-500">姓名</label>
                     <input name="name" value={formData.name} onChange={handleChange} className="w-full border p-2 rounded" />
                 </div>
@@ -220,7 +226,7 @@ const AdminUserManagement: React.FC = () => {
                 {allUsers.map(u => (
                     <tr key={u.id}>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900 flex items-center gap-2">
-                             <img src={u.avatar} className="w-8 h-8 rounded-full" />
+                             <Avatar src={u.avatar} name={u.name} className="w-8 h-8 rounded-full" />
                              {u.name}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{u.title}</td>

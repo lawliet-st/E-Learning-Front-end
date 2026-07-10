@@ -13,6 +13,7 @@ import TalentProfile from './pages/TalentProfile';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminCourseManagement from './pages/AdminCourseCreate';
 import AdminUserManagement from './pages/AdminUserManagement';
+import AdminLearningRecords from './pages/AdminLearningRecords';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; requireAdmin?: boolean }> = ({ children, requireAdmin }) => {
   const { user } = useStore();
@@ -99,6 +100,12 @@ const AppContent: React.FC = () => {
         <Route path="/admin/users" element={
           <ProtectedRoute requireAdmin>
             <AdminUserManagement />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/admin/records" element={
+          <ProtectedRoute requireAdmin>
+            <AdminLearningRecords />
           </ProtectedRoute>
         } />
 

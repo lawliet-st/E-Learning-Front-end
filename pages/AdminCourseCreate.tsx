@@ -6,12 +6,13 @@ import { Course, CourseType } from '../types';
 import { generateCourseVisual } from '../services/gemini';
 
 const AdminCourseManagement: React.FC = () => {
-  const { courses, addCourse, updateCourse, deleteCourse } = useStore();
+  const { courses, addCourse, updateCourse, deleteCourse, allUsers } = useStore();
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [genLoading, setGenLoading] = useState(false);
   const [aiQuestionLoading, setAiQuestionLoading] = useState(false);
-  const [uploadingState, setUploadingState] = useState<{video: boolean, pdf: boolean}>({video: false, pdf: false});
+  const [searchUserQuery, setSearchUserQuery] = useState('');
+  const [uploadingState, setUploadingState] = useState<{video: boolean, pdf: boolean, image: boolean}>({video: false, pdf: false, image: false});
 
   const defaultCourse: Partial<Course> = {
     title: '',
@@ -21,10 +22,11 @@ const AdminCourseManagement: React.FC = () => {
     videoUrl: '',
     pdfUrl: '',
     duration: '60 分鐘',
-    thumbnail: 'https://picsum.photos/seed/new/400/225',
+    thumbnail: '',
     attributes: { logic: 50, professional: 50, difficulty: 50, importance: 50, knowledgeLimit: 50 },
     questions: [],
-    visualSummary: ''
+    visualSummary: '',
+    compulsoryTargets: { departments: [], userIds: [] }
   };
 
   const [form, setForm] = useState<Partial<Course>>(defaultCourse);
@@ -36,10 +38,13 @@ const AdminCourseManagement: React.FC = () => {
   }
 
   const startEdit = (course: Course) => {
-      setForm(course);
+      setForm({
+          ...course,
+          compulsoryTargets: course.compulsoryTargets || { departments: [], userIds: [] }
+      });
       setIsEditing(true);
       setEditingId(course.id);
-  }
+  };
 
   const handleDelete = (id: string) => {
       if(confirm('確定要刪除此課程嗎？')) {
@@ -98,15 +103,14 @@ const AdminCourseManagement: React.FC = () => {
               }
               const newQuestions = JSON.parse(data.response);
               if (Array.isArray(newQuestions)) {
-                  const formatted = newQuestions.map((q, idx) => ({
-                      id: `q${Date.now()}_${idx}`,
-                      text: q.text,
-                      options: q.options,
-                      correctAnswer: q.correctAnswer
-                  }));
                   setForm(prev => ({
                       ...prev,
-                      questions: [...(prev.questions || []), ...formatted]
+                      questions: newQuestions.map((q: any, idx: number) => ({
+                          id: `q_ai_${idx}`,
+                          text: q.text,
+                          options: q.options,
+                          correctAnswer: q.correctAnswer
+                      }))
                   }));
               }
           } else {
@@ -120,11 +124,11 @@ const AdminCourseManagement: React.FC = () => {
       }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'videoUrl' | 'pdfUrl') => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'videoUrl' | 'pdfUrl' | 'thumbnail') => {
       const file = e.target.files?.[0];
       if (!file) return;
 
-      const typeKey = field === 'videoUrl' ? 'video' : 'pdf';
+      const typeKey = field === 'videoUrl' ? 'video' : field === 'pdfUrl' ? 'pdf' : 'image';
       setUploadingState(prev => ({ ...prev, [typeKey]: true }));
 
       const reader = new FileReader();
@@ -160,19 +164,21 @@ const AdminCourseManagement: React.FC = () => {
     if (!form.title) return;
 
     if (editingId) {
-        // Prevent changing visual summary if it exists (simulate immutable once published rule, though here we just save what's in form)
-        // Actually the prompt says: "once saved/published, immutable". 
-        // In this simple app, we just update. The prompt allows re-generation *before* saving.
-        updateCourse({ ...form as Course, id: editingId });
+        updateCourse({ 
+          ...form as Course, 
+          id: editingId,
+          compulsoryTargets: form.compulsoryTargets || { departments: [], userIds: [] }
+        });
     } else {
         const newCourse: Course = {
             ...form as Course,
             id: `c${Date.now()}`,
             createdAt: new Date().toISOString().split('T')[0],
-            durationSeconds: 3600, 
+            durationSeconds: form.durationSeconds !== undefined ? form.durationSeconds : 3600, 
             questions: form.questions?.length ? form.questions : [ 
                 { id: 'q1', text: '基本測驗題', options: ['A','B','C'], correctAnswer: 0 }
-            ]
+            ],
+            compulsoryTargets: form.compulsoryTargets || { departments: [], userIds: [] }
         };
         addCourse(newCourse);
     }
@@ -193,7 +199,7 @@ const AdminCourseManagement: React.FC = () => {
                 <input name="title" required value={form.title} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700">課程分類</label>
                         <select name="category" value={form.category} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
@@ -212,6 +218,155 @@ const AdminCourseManagement: React.FC = () => {
                             <option value="compulsory">推薦/必修課程</option>
                         </select>
                     </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">影片長度 (分鐘)</label>
+                        <input
+                            type="number"
+                            name="durationMinutes"
+                            min="0"
+                            value={form.durationSeconds !== undefined ? Math.round(form.durationSeconds / 60) : 60}
+                            onChange={(e) => {
+                                const mins = parseInt(e.target.value) || 0;
+                                setForm(prev => ({
+                                    ...prev,
+                                    duration: mins > 0 ? `${mins} 分鐘` : '無影片',
+                                    durationSeconds: mins * 60
+                                }));
+                            }}
+                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                        />
+                    </div>
+                </div>
+
+                {/* 必修/推薦對象設定 */}
+                <div className="border border-slate-200 bg-slate-50 p-4 rounded-xl space-y-4">
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-850">必修人員指派與篩選</h3>
+                    <p className="text-xs text-gray-500 mt-0.5">您可以選擇本課程之必修/推薦對象，可直接點選部門快捷指派，或在下方單獨挑選人員。</p>
+                  </div>
+                  
+                  {/* Department selectors */}
+                  <div className="border-b border-gray-200 pb-3">
+                    <label className="block text-xs font-semibold text-slate-700 mb-2">一鍵指派部門 (全體同仁必修)</label>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {Array.from(new Set(allUsers.filter(u => u.role === 'employee' && u.department).map(u => u.department))).map(dept => {
+                        const isChecked = form.compulsoryTargets?.departments?.includes(dept);
+                        return (
+                          <label key={dept} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium cursor-pointer transition-all ${isChecked ? 'bg-brand-50 border-brand-200 text-brand-700 font-semibold' : 'bg-white border-gray-200 hover:bg-gray-50'}`}>
+                            <input 
+                              type="checkbox"
+                              checked={!!isChecked}
+                              onChange={() => {
+                                const depts = form.compulsoryTargets?.departments || [];
+                                const newDepts = isChecked 
+                                  ? depts.filter(d => d !== dept)
+                                  : [...depts, dept];
+                                setForm(prev => ({
+                                  ...prev,
+                                  compulsoryTargets: {
+                                    departments: newDepts,
+                                    userIds: prev.compulsoryTargets?.userIds || []
+                                  }
+                                }));
+                              }}
+                            />
+                            {dept}
+                          </label>
+                        );
+                      })}
+                    </div>
+                    <div className="flex gap-3">
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          const allDepts = Array.from(new Set(allUsers.filter(u => u.role === 'employee' && u.department).map(u => u.department)));
+                          setForm(prev => ({
+                            ...prev,
+                            compulsoryTargets: {
+                              departments: allDepts,
+                              userIds: prev.compulsoryTargets?.userIds || []
+                            }
+                          }));
+                        }}
+                        className="text-[10px] text-brand-600 hover:underline font-medium"
+                      >
+                        全選部門
+                      </button>
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          setForm(prev => ({
+                            ...prev,
+                            compulsoryTargets: {
+                              departments: [],
+                              userIds: prev.compulsoryTargets?.userIds || []
+                            }
+                          }));
+                        }}
+                        className="text-[10px] text-gray-500 hover:underline font-medium"
+                      >
+                        清除部門
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Individual Users List with Search & Department filter */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-2">指派個別同仁 (支援跨部門搜尋)</label>
+                    <input 
+                      type="text" 
+                      placeholder="輸入姓名、員工編號或部門快速搜尋..." 
+                      value={searchUserQuery}
+                      onChange={(e) => setSearchUserQuery(e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg p-2 text-xs bg-white mb-2 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                    />
+                    <div className="max-h-48 overflow-y-auto divide-y divide-gray-200 border border-gray-200 rounded-lg bg-white text-xs">
+                      {allUsers
+                        .filter(u => u.role === 'employee')
+                        .filter(u => {
+                          if (!searchUserQuery) return true;
+                          const q = searchUserQuery.toLowerCase();
+                          return u.name.toLowerCase().includes(q) || 
+                                 (u.employeeId && u.employeeId.toLowerCase().includes(q)) ||
+                                 (u.department && u.department.toLowerCase().includes(q));
+                        })
+                        .map(u => {
+                          const isChecked = form.compulsoryTargets?.userIds?.includes(u.id);
+                          const isDeptChecked = form.compulsoryTargets?.departments?.includes(u.department);
+                          return (
+                            <label key={u.id} className={`flex items-center justify-between px-4 py-2 hover:bg-slate-50 cursor-pointer ${isDeptChecked ? 'bg-slate-50/50 opacity-80' : ''}`}>
+                              <div className="flex items-center gap-2">
+                                <input 
+                                  type="checkbox"
+                                  disabled={isDeptChecked}
+                                  checked={isDeptChecked || !!isChecked}
+                                  onChange={() => {
+                                    const ids = form.compulsoryTargets?.userIds || [];
+                                    const newIds = isChecked
+                                      ? ids.filter(id => id !== u.id)
+                                      : [...ids, u.id];
+                                    setForm(prev => ({
+                                      ...prev,
+                                      compulsoryTargets: {
+                                        departments: prev.compulsoryTargets?.departments || [],
+                                        userIds: newIds
+                                      }
+                                    }));
+                                  }}
+                                />
+                                <span className="font-semibold text-slate-800">{u.name}</span>
+                                <span className="text-[10px] text-gray-500 font-mono">({u.employeeId})</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{u.department} | {u.title}</span>
+                                {isDeptChecked && <span className="text-[10px] text-brand-600 font-bold bg-brand-50 border border-brand-100 px-2 py-0.5 rounded-full">已依部門指派</span>}
+                              </div>
+                            </label>
+                          );
+                        })
+                      }
+                    </div>
+                  </div>
                 </div>
 
                 <div>
@@ -273,8 +428,15 @@ const AdminCourseManagement: React.FC = () => {
                 </div>
 
                 <div>
-                     <label className="block text-sm font-medium text-gray-700">課程縮圖 (URL)</label>
-                     <input name="thumbnail" value={form.thumbnail} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+                     <label className="block text-sm font-medium text-gray-700">課程縮圖 (URL / 上傳圖片)</label>
+                     <div className="mt-1 flex items-center gap-2">
+                        <input name="thumbnail" value={form.thumbnail} onChange={handleChange} placeholder="輸入圖片 URL 或上傳檔案" className="block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+                        <label className={`cursor-pointer whitespace-nowrap bg-gray-100 px-3 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-200 ${uploadingState.image ? 'opacity-50 pointer-events-none' : ''}`}>
+                            {uploadingState.image ? '上傳中...' : '選擇檔案'}
+                            <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'thumbnail')} />
+                        </label>
+                     </div>
+                     <p className="text-xs text-gray-400 mt-1">若留空，系統將在課程列表以精緻的漸層與標題作為預設封面圖。</p>
                 </div>
 
                 <div className="border-t border-gray-100 pt-4">

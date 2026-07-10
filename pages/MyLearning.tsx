@@ -131,7 +131,9 @@ const MyLearning: React.FC = () => {
                           <tr key={c.id}>
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{c.title}</td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{c.category}</td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{c.type === 'compulsory' ? '推薦' : '選修'}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                  {c.type === 'compulsory' || (user && c.compulsoryTargets && (c.compulsoryTargets.departments?.includes(user.department) || c.compulsoryTargets.userIds?.includes(user.id))) ? '推薦/必修' : '選修'}
+                              </td>
                               <td className="px-6 py-4 whitespace-nowrap">
                                   <span className={`px-2 py-1 rounded-full text-xs font-bold ${statusColor}`}>{status}</span>
                               </td>

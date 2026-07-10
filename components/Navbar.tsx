@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useStore } from '../store';
 import { BookOpen, LogOut, Menu, X, ShieldCheck } from 'lucide-react';
+import Avatar from './Avatar';
 
 const Navbar: React.FC = () => {
   const { user, logout } = useStore();
@@ -33,6 +34,7 @@ const Navbar: React.FC = () => {
                 <Link to="/admin" className={isActive('/admin')}>戰情室</Link>
                 <Link to="/admin/create-course" className={isActive('/admin/create-course')}>課程管理</Link>
                 <Link to="/admin/users" className={isActive('/admin/users')}>使用者管理</Link>
+                <Link to="/admin/records" className={isActive('/admin/records')}>學習記錄查詢</Link>
               </>
             ) : (
               // Employee Menu
@@ -45,7 +47,7 @@ const Navbar: React.FC = () => {
             
             <div className="flex items-center gap-4 ml-4 pl-4 border-l border-gray-200">
               <div className="flex items-center gap-2">
-                <img src={user.avatar} alt="Avatar" className="h-8 w-8 rounded-full border border-gray-200" />
+                <Avatar src={user.avatar} name={user.name} className="h-8 w-8 rounded-full border border-gray-200" />
                 <div className="flex flex-col">
                   <span className="text-sm font-medium text-slate-700">{user.name}</span>
                   <span className="text-xs text-gray-500">{user.title}</span>
@@ -84,6 +86,7 @@ const Navbar: React.FC = () => {
                 <Link to="/admin" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">戰情室</Link>
                 <Link to="/admin/create-course" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">課程管理</Link>
                 <Link to="/admin/users" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">使用者管理</Link>
+                <Link to="/admin/records" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">學習記錄查詢</Link>
               </>
             ) : (
               <>
