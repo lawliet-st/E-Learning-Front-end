@@ -172,142 +172,161 @@ const TalentProfile: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* Left Column: Metrics */}
-        <div className="lg:col-span-2 space-y-8">
+      <div className="relative">
+        <div className={`grid grid-cols-1 lg:grid-cols-3 gap-8 ${(!userId && currentUser?.role !== 'admin') ? 'opacity-30 pointer-events-none select-none filter blur-[2px]' : ''}`}>
           
-          {/* Skills Radar */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 relative">
-            <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <MapPin className="h-5 w-5 text-blue-500" />
-              專業技能雷達
-            </h3>
-            {profile.skillAssessmentScore ? (
-                <div className="h-80 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
-                    <PolarGrid />
-                    <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 12 }} />
-                    <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false}/>
-                    <Radar name={targetUser.name} dataKey="A" stroke="#0ea5e9" fill="#0ea5e9" fillOpacity={0.5} />
-                    <Tooltip />
-                    </RadarChart>
-                </ResponsiveContainer>
-                </div>
-            ) : (
-                <div className="h-80 w-full flex items-center justify-center bg-gray-50 rounded-lg">
-                    <p className="text-red-500 font-bold flex items-center gap-2">
-                        <HelpCircle className="h-6 w-6" /> 請先進行專業技能測驗以顯示圖表
-                    </p>
-                </div>
-            )}
+          {/* Left Column: Metrics */}
+          <div className="lg:col-span-2 space-y-8">
             
-            <div className="absolute bottom-4 right-4 text-xs text-gray-400 flex items-center gap-1 bg-white px-2 py-1 rounded shadow-sm">
-                <HelpCircle className="h-3 w-3" />
-                若有疑問請洽人力資源處
-            </div>
-          </div>
-
-          {/* Performance History */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-             <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-green-500" />
-              歷年績效考核
-            </h3>
-             <div className="h-60 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={performanceData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="year" tickLine={false} axisLine={false} />
-                  <YAxis domain={[0, 5]} ticks={[1,2,3,4,5]} tickLine={false} axisLine={false} />
-                  <Tooltip cursor={{fill: '#f8fafc'}} />
-                  <Bar dataKey="rating" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={40} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-           {/* Hogan Detailed Results - Colorful Radar */}
-           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-bold text-slate-800 mb-6">Hogan 性格測評詳細報告</h3>
-            {profile.assessment.completed ? (
-              <div className="h-96 w-full">
+            {/* Skills Radar */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 relative">
+              <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-blue-500" />
+                專業技能雷達
+              </h3>
+              {profile.skillAssessmentScore ? (
+                  <div className="h-80 w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart cx="50%" cy="50%" outerRadius="80%" data={combinedHoganData}>
+                      <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
                       <PolarGrid />
-                      <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10, fill: '#64748b' }} />
-                      <PolarRadiusAxis domain={[0, 100]} tick={false} />
+                      <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 12 }} />
+                      <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false}/>
+                      <Radar name={targetUser.name} dataKey="A" stroke="#0ea5e9" fill="#0ea5e9" fillOpacity={0.5} />
                       <Tooltip />
-                      {/* We mock separation by filtering data key, but here we flattened it. 
-                          For a true multi-color radar in Recharts with different axes, 
-                          we iterate over categories and create multiple Radars if they shared axes, 
-                          but they have DIFFERENT axes. 
-                          Best approach: One big radar, use `dataKey="score"` and define custom dot colors? 
-                          Or just show one unified shape with a gradient? 
-                          Let's stick to simple unified shape but with a colorful stroke/fill */}
-                      <Radar name="Score" dataKey="score" stroke="#8b5cf6" fill="url(#colorHogan)" fillOpacity={0.6} />
-                      <defs>
-                        <linearGradient id="colorHogan" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
-                          <stop offset="95%" stopColor="#82ca9d" stopOpacity={0.8}/>
-                        </linearGradient>
-                      </defs>
-                    </RadarChart>
+                      </RadarChart>
                   </ResponsiveContainer>
-                  <div className="flex justify-center gap-4 mt-2 text-xs">
-                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span> HPI 性格</span>
-                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500"></span> HDS 阻礙</span>
-                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500"></span> MVPI 動機</span>
                   </div>
+              ) : (
+                  <div className="h-80 w-full flex items-center justify-center bg-gray-50 rounded-lg">
+                      <p className="text-red-500 font-bold flex items-center gap-2">
+                          <HelpCircle className="h-6 w-6" /> 請先進行專業技能測驗以顯示圖表
+                      </p>
+                  </div>
+              )}
+              
+              <div className="absolute bottom-4 right-4 text-xs text-gray-400 flex items-center gap-1 bg-white px-2 py-1 rounded shadow-sm">
+                  <HelpCircle className="h-3 w-3" />
+                  若有疑問請洽人力資源處
               </div>
-            ) : (
-              <p className="text-sm text-gray-500">該員工尚未完成測評。</p>
-            )}
+            </div>
+
+            {/* Performance History */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+               <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-green-500" />
+                歷年績效考核
+              </h3>
+               <div className="h-60 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={performanceData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="year" tickLine={false} axisLine={false} />
+                    <YAxis domain={[0, 5]} ticks={[1,2,3,4,5]} tickLine={false} axisLine={false} />
+                    <Tooltip cursor={{fill: '#f8fafc'}} />
+                    <Bar dataKey="rating" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={40} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+             {/* Hogan Detailed Results - Colorful Radar */}
+             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-bold text-slate-800 mb-6">Hogan 性格測評詳細報告</h3>
+              {profile.assessment.completed ? (
+                <div className="h-96 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RadarChart cx="50%" cy="50%" outerRadius="80%" data={combinedHoganData}>
+                        <PolarGrid />
+                        <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10, fill: '#64748b' }} />
+                        <PolarRadiusAxis domain={[0, 100]} tick={false} />
+                        <Tooltip />
+                        {/* We mock separation by filtering data key, but here we flattened it. 
+                            For a true multi-color radar in Recharts with different axes, 
+                            we iterate over categories and create multiple Radars if they shared axes, 
+                            but they have DIFFERENT axes. 
+                            Best approach: One big radar, use `dataKey="score"` and define custom dot colors? 
+                            Or just show one unified shape with a gradient? 
+                            Let's stick to simple unified shape but with a colorful stroke/fill */}
+                        <Radar name="Score" dataKey="score" stroke="#8b5cf6" fill="url(#colorHogan)" fillOpacity={0.6} />
+                        <defs>
+                          <linearGradient id="colorHogan" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
+                            <stop offset="95%" stopColor="#82ca9d" stopOpacity={0.8}/>
+                          </linearGradient>
+                        </defs>
+                      </RadarChart>
+                    </ResponsiveContainer>
+                    <div className="flex justify-center gap-4 mt-2 text-xs">
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span> HPI 性格</span>
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500"></span> HDS 阻礙</span>
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500"></span> MVPI 動機</span>
+                    </div>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">該員工尚未完成測評。</p>
+              )}
+            </div>
+          </div>
+
+          {/* Right Column: Analysis & AI */}
+          <div className="space-y-8">
+            
+            {/* 9-Box Grid */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+               <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <Grid className="h-5 w-5 text-orange-500" />
+                人才九宮格
+              </h3>
+              <div className="bg-gray-50 p-4 rounded-xl">
+                 <NineBoxGrid metrics={metrics} />
+              </div>
+              <div className="mt-4 text-sm text-gray-600">
+                <p>目前定位：<span className="font-bold text-slate-900">
+                    {metrics.profile.nineBoxPosition.performance === 'High' && metrics.profile.nineBoxPosition.potential === 'High' ? '超級明星 (Star)' : 
+                     metrics.profile.nineBoxPosition.performance === 'Medium' && metrics.profile.nineBoxPosition.potential === 'Medium' ? '核心骨幹' :
+                     metrics.profile.nineBoxPosition.performance} 
+                </span></p>
+              </div>
+            </div>
+
+            {/* AI Career Advice */}
+            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl shadow-sm border border-indigo-100 p-6 relative overflow-hidden">
+               <div className="absolute top-0 right-0 p-4 opacity-10">
+                 <Sparkles className="h-24 w-24 text-indigo-600" />
+               </div>
+               <h3 className="text-lg font-bold text-indigo-900 mb-4 flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-indigo-600" />
+                Ai 職涯發展建議
+              </h3>
+              {loadingAi ? (
+                <div className="flex items-center gap-2 text-indigo-600 text-sm animate-pulse">
+                  <span>正在分析數據...</span>
+                </div>
+              ) : (
+                <div className="prose prose-sm text-indigo-800">
+                  <p>{aiAdvice}</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Right Column: Analysis & AI */}
-        <div className="space-y-8">
-          
-          {/* 9-Box Grid */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-             <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <Grid className="h-5 w-5 text-orange-500" />
-              人才九宮格
-            </h3>
-            <div className="bg-gray-50 p-4 rounded-xl">
-               <NineBoxGrid metrics={metrics} />
+        {/* Coming Soon Overlay for Employees */}
+        {!userId && currentUser?.role !== 'admin' && (
+          <div className="absolute inset-0 bg-slate-50/50 backdrop-blur-[4px] rounded-2xl border border-gray-200 flex flex-col items-center justify-center p-8 text-center animate-fade-in shadow-inner min-h-[400px]">
+            <div className="bg-indigo-600/10 p-4 rounded-full mb-4 ring-8 ring-indigo-600/5">
+              <Sparkles className="h-10 w-10 text-indigo-600 animate-pulse" />
             </div>
-            <div className="mt-4 text-sm text-gray-600">
-              <p>目前定位：<span className="font-bold text-slate-900">
-                  {metrics.profile.nineBoxPosition.performance === 'High' && metrics.profile.nineBoxPosition.potential === 'High' ? '超級明星 (Star)' : 
-                   metrics.profile.nineBoxPosition.performance === 'Medium' && metrics.profile.nineBoxPosition.potential === 'Medium' ? '核心骨幹' :
-                   metrics.profile.nineBoxPosition.performance} 
-              </span></p>
+            <h2 className="text-2xl font-bold text-slate-800 mb-2">AI 智能個人檔案與職涯導航</h2>
+            <p className="text-sm text-slate-500 max-w-md mb-6 leading-relaxed">
+              本模組正在進行內部系統對接。正式開放後，學員將在此頁面查詢專業技能雷達圖、歷年績效考核、Hogan性格分析以及人資推薦的職涯晉升必修學分。
+            </p>
+            <div className="inline-flex items-center gap-2 bg-indigo-600 text-white px-6 py-2.5 rounded-full font-bold shadow-md hover:bg-indigo-700 transition-colors">
+              <TrendingUp className="h-4 w-4" />
+              <span>模組即將開放 — 敬請期待正式版本</span>
             </div>
           </div>
-
-          {/* AI Career Advice */}
-          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl shadow-sm border border-indigo-100 p-6 relative overflow-hidden">
-             <div className="absolute top-0 right-0 p-4 opacity-10">
-               <Sparkles className="h-24 w-24 text-indigo-600" />
-             </div>
-             <h3 className="text-lg font-bold text-indigo-900 mb-4 flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-indigo-600" />
-              Ai 職涯發展建議
-            </h3>
-            {loadingAi ? (
-              <div className="flex items-center gap-2 text-indigo-600 text-sm animate-pulse">
-                <span>正在分析數據...</span>
-              </div>
-            ) : (
-              <div className="prose prose-sm text-indigo-800">
-                <p>{aiAdvice}</p>
-              </div>
-            )}
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
