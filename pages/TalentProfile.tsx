@@ -3,7 +3,7 @@ import { useStore } from '../store';
 import { useParams, Link } from 'react-router-dom';
 import { User, TalentProfileData } from '../types';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine } from 'recharts';
-import { User as UserIcon, Calendar, TrendingUp, Grid, Sparkles, MapPin, HelpCircle, Tag } from 'lucide-react';
+import { User as UserIcon, Calendar, TrendingUp, Grid, Sparkles, MapPin, HelpCircle } from 'lucide-react';
 import { generateCareerAdvice } from '../services/gemini';
 import Avatar from '../components/Avatar';
 
@@ -91,18 +91,6 @@ const TalentProfile: React.FC = () => {
   const radarData = profile.skills;
   const performanceData = profile.performanceHistory;
   
-  // Hogan Radar Data - Merging for a "Colorful Radar"
-  // Normalizing categories to fit on one radar
-  const hoganRadarData = [
-      ...(profile.assessment.hpiDetails || []).map(d => ({ subject: d.label, A: d.score, type: 'HPI', fill: '#3b82f6' })),
-      ...(profile.assessment.hdsDetails || []).map(d => ({ subject: d.label, B: d.score, type: 'HDS', fill: '#ef4444' })),
-      ...(profile.assessment.mvpiDetails || []).map(d => ({ subject: d.label, C: d.score, type: 'MVPI', fill: '#10b981' })),
-  ];
-  // Recharts radar needs unique keys per axis. To show 3 separate blobs, we usually need 3 data keys on the same axis set, 
-  // but here axes are different. 
-  // Workaround: We will show 3 separate Radar Charts side-by-side or stacked, OR format data so one RadarChart has all axes.
-  // Given "Coloroful Radar", let's try one big chart with all axes.
-  
   const combinedHoganData = [
       ...(profile.assessment.hpiDetails || []).map(d => ({ subject: d.label, score: d.score, category: '性格 (HPI)', color: '#3b82f6' })),
       ...(profile.assessment.hdsDetails || []).map(d => ({ subject: d.label, score: d.score, category: '阻礙 (HDS)', color: '#ef4444' })),
@@ -124,15 +112,6 @@ const TalentProfile: React.FC = () => {
                 )}
               </h1>
               <p className="text-lg text-slate-600 mt-1">{targetUser.title} | {targetUser.department}</p>
-              {profile.tags && profile.tags.length > 0 && (
-                  <div className="flex gap-2 mt-3">
-                      {profile.tags.map(tag => (
-                          <span key={tag} className="inline-flex items-center gap-1 bg-slate-100 text-slate-600 text-xs px-2 py-1 rounded-full">
-                              <Tag className="h-3 w-3" /> {tag}
-                          </span>
-                      ))}
-                  </div>
-              )}
             </div>
             {userId && <Link to="/admin" className="text-sm text-gray-500 hover:text-brand-600">返回戰情室</Link>}
           </div>

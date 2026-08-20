@@ -33,14 +33,13 @@ export interface TalentProfileData {
   joinDate: string;
   performanceHistory: PerformanceRecord[];
   skills: Skill[];
-  // Calculated dynamically now, but kept for legacy mock structure or manual override
   nineBoxPosition: {
     performance: 'Low' | 'Medium' | 'High';
     potential: 'Low' | 'Medium' | 'High';
   };
   assessment: AssessmentScores;
-  tags: string[]; // New: User tags
-  skillAssessmentScore?: number; // New: 0-50
+  tags?: string[];
+  skillAssessmentScore?: number;
 }
 
 export interface User {
@@ -48,7 +47,7 @@ export interface User {
   employeeId: string;
   name: string;
   email: string;
-  internalEmail?: string; // New: Internal Email
+  internalEmail?: string;
   role: Role;
   avatar: string;
   department: string;
@@ -72,6 +71,13 @@ export interface CourseAttributes {
 }
 
 export type CourseType = 'compulsory' | 'elective';
+export type CourseStatus = 'draft' | 'published' | 'closed';
+
+export interface PublishHistoryItem {
+  status: CourseStatus;
+  timestamp: string;
+  operator: string;
+}
 
 export interface CompulsoryTargets {
   departments: string[];
@@ -83,9 +89,14 @@ export interface Course {
   title: string;
   description: string;
   category: string; 
-  type: CourseType; // New: Elective vs Compulsory/Recommended
-  createdAt: string; // New: For monthly stats
-  visualSummary?: string; // New: SVG string from GenAI
+  type: CourseType; 
+  status?: CourseStatus; // 'draft' | 'published' | 'closed'
+  passScore?: number; // Default 70
+  isRandom10?: boolean; // If true, randomly select 10 questions (each 10 pts)
+  isRandomOrder?: boolean; // If true, shuffle question order
+  isRandomOptions?: boolean; // If true, shuffle options order for each question
+  createdAt: string; 
+  visualSummary?: string; 
   thumbnail: string;
   videoUrl: string;
   pdfUrl: string;
@@ -94,6 +105,7 @@ export interface Course {
   attributes: CourseAttributes; 
   questions: Question[];
   compulsoryTargets?: CompulsoryTargets;
+  publishHistory?: PublishHistoryItem[];
 }
 
 export interface CourseProgress {
@@ -101,8 +113,28 @@ export interface CourseProgress {
   userId: string;
   completed: boolean;
   quizScore: number | null;
-  satisfaction?: number; // New: 1-5
+  satisfaction?: number; // 1-5
   attemptDate?: string;
+  failCount?: number; // Count of failed attempts
+  lastAttemptTime?: string; // Timestamp of last failed/completed attempt
+}
+
+export interface Announcement {
+  id: number;
+  title: string;
+  content: string;
+  type: 'system' | 'course_auto' | 'notice';
+  imageUrl?: string;
+  courseId?: string;
+  createdAt: string;
+  isPinned: boolean;
+  author: string;
+}
+
+export interface Category {
+  id: number;
+  name: string;
+  createdAt: string;
 }
 
 export interface TalentMetric {
@@ -113,7 +145,7 @@ export interface TalentMetric {
   completedCoursesCount: number;
   isHighPotential: boolean;
   profile: TalentProfileData;
-  calculatedPot?: number; // Internal use
-  calculatedPerf?: number; // Internal use
+  calculatedPot?: number;
+  calculatedPerf?: number;
   internalEmail?: string;
 }

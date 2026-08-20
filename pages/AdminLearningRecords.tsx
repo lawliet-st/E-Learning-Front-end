@@ -1,14 +1,30 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useStore } from '../store';
-import { Search, Download, User, BookOpen, Filter, CheckCircle2, XCircle, Clock, ListFilter } from 'lucide-react';
+import { Search, Download, User, BookOpen, Filter, CheckCircle2, XCircle, Clock, ListFilter, ChevronDown, Check, X } from 'lucide-react';
 
 const AdminLearningRecords: React.FC = () => {
-  const { allUsers, courses, progress } = useStore();
+  const { allUsers, courses, progress, categories } = useStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDept, setSelectedDept] = useState('All');
-  const [selectedCourse, setSelectedCourse] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedCourses, setSelectedCourses] = useState<string[]>([]); // Multi-select course IDs
+  const [isCourseDropdownOpen, setIsCourseDropdownOpen] = useState(false);
+  const [courseSearchTerm, setCourseSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('All');
   const [viewMode, setViewMode] = useState<'flat' | 'by-user' | 'by-course'>('flat');
+
+  const courseDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (courseDropdownRef.current && !courseDropdownRef.current.contains(event.target as Node)) {
+        setIsCourseDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Compute all departments for filter dropdown
   const departments = useMemo(() => {
@@ -32,7 +48,7 @@ const AdminLearningRecords: React.FC = () => {
           if (p.completed) {
             statusText = '已完成';
             statusColor = 'text-green-700 bg-green-50 border-green-200';
-          } else if (p.quizScore !== null && p.quizScore < 60) {
+          } else if (p.quizScore !== null && p.quizScore < (c.passScore || 70)) {
             statusText = '未通過測驗';
             statusColor = 'text-red-700 bg-red-50 border-red-200';
           } else {
@@ -73,12 +89,13 @@ const AdminLearningRecords: React.FC = () => {
         r.courseTitle.toLowerCase().includes(searchTerm.toLowerCase());
         
       const matchesDept = selectedDept === 'All' || r.department === selectedDept;
-      const matchesCourse = selectedCourse === 'All' || r.courseId === selectedCourse;
+      const matchesCategory = selectedCategory === 'All' || r.courseCategory === selectedCategory;
+      const matchesCourse = selectedCourses.length === 0 || selectedCourses.includes(r.courseId);
       const matchesStatus = selectedStatus === 'All' || r.statusText === selectedStatus;
       
-      return matchesSearch && matchesDept && matchesCourse && matchesStatus;
+      return matchesSearch && matchesDept && matchesCategory && matchesCourse && matchesStatus;
     });
-  }, [allRecords, searchTerm, selectedDept, selectedCourse, selectedStatus]);
+  }, [allRecords, searchTerm, selectedDept, selectedCategory, selectedCourses, selectedStatus]);
 
   // Group by User
   const recordsGroupedByUser = useMemo(() => {
@@ -139,6 +156,15 @@ const AdminLearningRecords: React.FC = () => {
     document.body.removeChild(link);
   };
 
+  // Filtered course options for multi-select dropdown based on category
+  const availableCoursesForFilter = useMemo(() => {
+    return courses.filter(c => {
+      if (selectedCategory !== 'All' && c.category !== selectedCategory) return false;
+      if (courseSearchTerm && !c.title.toLowerCase().includes(courseSearchTerm.toLowerCase())) return false;
+      return true;
+    });
+  }, [courses, selectedCategory, courseSearchTerm]);
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -159,16 +185,16 @@ const AdminLearningRecords: React.FC = () => {
         <h2 className="text-sm font-bold text-slate-700 flex items-center gap-1.5 mb-1">
           <ListFilter className="h-4 w-4 text-brand-600" /> 進階篩選與搜尋
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
           {/* Keyword Search */}
           <div className="relative">
             <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
             <input
               type="text"
-              placeholder="搜尋員工姓名、編號或課程"
+              placeholder="搜尋員工、工號或課程"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+              className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
           </div>
 
@@ -177,27 +203,104 @@ const AdminLearningRecords: React.FC = () => {
             <select
               value={selectedDept}
               onChange={(e) => setSelectedDept(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full border border-gray-300 rounded-xl p-2 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-brand-500"
             >
-              <option value="All">所有部門</option>
+              <option value="All">所有部門 (全選)</option>
               {departments.filter(d => d !== 'All').map((d, idx) => (
                 <option key={d || idx} value={d}>{d}</option>
               ))}
             </select>
           </div>
 
-          {/* Course Filter */}
+          {/* Category Filter */}
           <div>
             <select
-              value={selectedCourse}
-              onChange={(e) => setSelectedCourse(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              value={selectedCategory}
+              onChange={(e) => {
+                setSelectedCategory(e.target.value);
+              }}
+              className="w-full border border-gray-300 rounded-xl p-2 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-brand-500"
             >
-              <option value="All">所有課程</option>
-              {courses.map(c => (
-                <option key={c.id} value={c.id}>{c.title}</option>
+              <option value="All">所有課程分類</option>
+              {categories.map(c => (
+                <option key={c.id} value={c.name}>{c.name}</option>
               ))}
             </select>
+          </div>
+
+          {/* Course Multi-select Dropdown */}
+          <div className="relative" ref={courseDropdownRef}>
+            <button
+              type="button"
+              onClick={() => setIsCourseDropdownOpen(prev => !prev)}
+              className="w-full border border-gray-300 rounded-xl p-2 text-xs bg-white text-left flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-brand-500"
+            >
+              <span className="truncate text-slate-700">
+                {selectedCourses.length === 0 
+                  ? '所有課程 (複選)' 
+                  : `已選 ${selectedCourses.length} 堂課程`}
+              </span>
+              <ChevronDown className="h-3.5 w-3.5 text-slate-400 ml-1 shrink-0" />
+            </button>
+
+            {isCourseDropdownOpen && (
+              <div className="absolute left-0 right-0 top-full mt-1.5 bg-white border border-gray-200 rounded-2xl shadow-xl z-50 p-3 w-72 md:w-80">
+                <div className="flex items-center justify-between pb-2 border-b border-gray-100 mb-2">
+                  <span className="text-xs font-bold text-slate-800">選擇課程 (支援複選)</span>
+                  <div className="flex gap-2">
+                    <button 
+                      type="button"
+                      onClick={() => setSelectedCourses(availableCoursesForFilter.map(c => c.id))}
+                      className="text-[11px] text-brand-600 font-bold hover:underline"
+                    >
+                      全選
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => setSelectedCourses([])}
+                      className="text-[11px] text-slate-400 font-medium hover:underline"
+                    >
+                      清空
+                    </button>
+                  </div>
+                </div>
+
+                <input
+                  type="text"
+                  placeholder="搜尋課程名稱..."
+                  value={courseSearchTerm}
+                  onChange={(e) => setCourseSearchTerm(e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg p-1.5 text-xs mb-2 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                />
+
+                <div className="max-h-48 overflow-y-auto space-y-1">
+                  {availableCoursesForFilter.map(c => {
+                    const isChecked = selectedCourses.includes(c.id);
+                    return (
+                      <label 
+                        key={c.id} 
+                        className={`flex items-center gap-2 p-1.5 rounded-lg text-xs cursor-pointer transition-colors ${isChecked ? 'bg-brand-50 text-brand-700 font-semibold' : 'hover:bg-slate-50 text-slate-700'}`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => {
+                            setSelectedCourses(prev => 
+                              isChecked ? prev.filter(id => id !== c.id) : [...prev, c.id]
+                            );
+                          }}
+                          className="rounded text-brand-600 focus:ring-brand-500"
+                        />
+                        <span className="truncate flex-1">{c.title}</span>
+                      </label>
+                    );
+                  })}
+                  {availableCoursesForFilter.length === 0 && (
+                    <p className="text-xs text-slate-400 text-center py-2">查無符合課程</p>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Status Filter */}
@@ -205,7 +308,7 @@ const AdminLearningRecords: React.FC = () => {
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full border border-gray-300 rounded-xl p-2 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-brand-500"
             >
               <option value="All">所有上課狀態</option>
               <option value="已完成">已完成</option>
@@ -215,6 +318,33 @@ const AdminLearningRecords: React.FC = () => {
             </select>
           </div>
         </div>
+
+        {/* Selected Course Chips */}
+        {selectedCourses.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5 pt-1">
+            <span className="text-[11px] text-slate-500 font-medium mr-1">已選課程：</span>
+            {selectedCourses.map(id => {
+              const c = courses.find(item => item.id === id);
+              return (
+                <span key={id} className="inline-flex items-center gap-1 bg-brand-50 text-brand-700 border border-brand-200 px-2 py-0.5 rounded-lg text-[11px] font-bold">
+                  {c?.title || id}
+                  <button 
+                    onClick={() => setSelectedCourses(prev => prev.filter(item => item !== id))}
+                    className="hover:text-brand-900"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              );
+            })}
+            <button 
+              onClick={() => setSelectedCourses([])} 
+              className="text-[11px] text-slate-400 hover:text-slate-600 underline ml-2"
+            >
+              全部清除
+            </button>
+          </div>
+        )}
 
         {/* View mode toggle */}
         <div className="flex border-t border-gray-100 pt-4 gap-2">
