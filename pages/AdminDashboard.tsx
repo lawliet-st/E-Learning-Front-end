@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { useStore } from '../store';
 import { Link } from 'react-router-dom';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
-import { Trophy, TrendingUp, Star, Users, Download, Filter, X, Check, BookOpen, Calendar, ClipboardList, AlertCircle, FileSpreadsheet, CheckCircle2, ChevronRight, Printer, FileText, Send, Sparkles, Building2, UserCheck, Award } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie } from 'recharts';
+import { Trophy, TrendingUp, Users, Download, Filter, X, Check, BookOpen, Calendar, ClipboardList, AlertCircle, FileSpreadsheet, CheckCircle2, ChevronRight, Printer, FileText, Send, Sparkles, Building2, UserCheck, Award } from 'lucide-react';
 import { Course, User } from '../types';
 
 const AdminDashboard: React.FC = () => {
@@ -25,7 +25,7 @@ const AdminDashboard: React.FC = () => {
     '本月全體同仁積極參與各項數位與專業教育訓練，各部門整體完課率與測驗及格率均維持高水準。建議持續深化製程安全與數位技能實務演練，並針對少數未及格同仁進行個別輔導機制。'
   );
   const [annualExecSummary, setAnnualExecSummary] = useState(
-    '年度培訓策略成效顯著，核心必修課程全員覆蓋率達標，並成功建立高潛力儲備人才庫。次年規劃將深化技術骨幹經驗傳承，並導入更多跨領域數位創新與敏捷管理主題。'
+    '年度培訓策略成效顯著，核心必修課程全員覆蓋率達標。次年規劃將深化技術骨幹經驗傳承，並導入更多跨領域數位創新與敏捷管理主題。'
   );
 
   // Categories
@@ -281,7 +281,7 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       {/* KPI Overview Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-between">
           <div>
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">組織平均測驗成績</span>
@@ -289,16 +289,6 @@ const AdminDashboard: React.FC = () => {
           </div>
           <div className="p-3 bg-brand-50 text-brand-600 rounded-2xl">
             <TrendingUp className="h-6 w-6" />
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-between">
-          <div>
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">高潛力儲備人才</span>
-            <p className="text-3xl font-black text-purple-600 mt-1">{highPotentials.length} <span className="text-base font-normal text-slate-500">人</span></p>
-          </div>
-          <div className="p-3 bg-purple-50 text-purple-600 rounded-2xl">
-            <Star className="h-6 w-6" />
           </div>
         </div>
 
@@ -510,7 +500,6 @@ const AdminDashboard: React.FC = () => {
         <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-200">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-bold text-slate-900">員工平均績效分數概覽</h3>
-            <span className="text-xs text-slate-400">紫標為高潛力人才</span>
           </div>
           <div className="h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -522,11 +511,7 @@ const AdminDashboard: React.FC = () => {
                   cursor={{ fill: '#f8fafc' }}
                   contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
                 />
-                <Bar dataKey="score" radius={[6, 6, 0, 0]} barSize={36}>
-                  {performanceChartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.isHighPotential ? '#8b5cf6' : '#0ea5e9'} />
-                  ))}
-                </Bar>
+                <Bar dataKey="score" radius={[6, 6, 0, 0]} barSize={36} fill="#0ea5e9" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -618,7 +603,7 @@ const AdminDashboard: React.FC = () => {
               {/* Report Official Header */}
               <div className="text-center border-b-2 border-slate-900 pb-4">
                 <div className="text-xs font-bold text-slate-500 tracking-widest uppercase mb-1">SHENG YU STEEL CO., LTD. • E-LEARNING ACADEMY</div>
-                <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">盛餘鋼鐵股份有限公司 【{currentMonthStr}】教育訓練成果報告</h2>
+                <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">盛餘 【{currentMonthStr}】教育訓練成果報告</h2>
                 <div className="flex flex-wrap justify-between items-center text-xs text-slate-600 mt-3 pt-2 border-t border-slate-100">
                   <span>統計月份：<strong className="text-slate-900">{currentMonthStr}</strong></span>
                   <span>產表日期：<strong className="text-slate-900">{new Date().toLocaleDateString('zh-TW')}</strong></span>
@@ -832,7 +817,7 @@ const AdminDashboard: React.FC = () => {
               {/* Official Header */}
               <div className="text-center border-b-2 border-purple-950 pb-4">
                 <div className="text-xs font-bold text-slate-500 tracking-widest uppercase mb-1">SHENG YU STEEL CO., LTD. • ANNUAL STRATEGIC REPORT</div>
-                <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">盛餘鋼鐵 【{currentYearStr} 年度】教育訓練與學習戰略總表</h2>
+                <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">盛餘 【{currentYearStr} 年度】教育訓練與學習戰略總表</h2>
                 <div className="flex flex-wrap justify-between items-center text-xs text-slate-600 mt-3 pt-2 border-t border-slate-100">
                   <span>統計年度：<strong className="text-slate-900">{currentYearStr} 全年度</strong></span>
                   <span>產出日期：<strong className="text-slate-900">{new Date().toLocaleDateString('zh-TW')}</strong></span>
