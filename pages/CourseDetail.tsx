@@ -196,12 +196,19 @@ const CourseDetail: React.FC = () => {
                   <img src={course.thumbnail} className="absolute inset-0 w-full h-full object-cover opacity-50" />
                 )}
               </>
+            ) : course.pdfUrl ? (
+              <div className="w-full h-full bg-slate-900 relative">
+                <iframe
+                  src={course.pdfUrl}
+                  className="w-full h-full border-0"
+                  title={`${course.title} - 講義教材`}
+                />
+              </div>
             ) : (
               <div className="w-full h-full bg-slate-100 flex flex-col items-center justify-center text-slate-500 p-8">
                 <FileText className="h-16 w-16 mb-4 text-slate-300" />
-                <h3 className="text-lg font-semibold text-slate-700">PDF 閱讀器模擬</h3>
-                <p className="text-sm">在真實環境中，此處將顯示 PDF 內容。</p>
-                <a href={course.pdfUrl} target="_blank" rel="noreferrer" className="mt-4 text-brand-600 hover:underline font-semibold">下載教材</a>
+                <h3 className="text-lg font-semibold text-slate-700">尚未上傳 PDF 講義</h3>
+                <p className="text-sm">此課程目前未附帶線上 PDF 教材。</p>
               </div>
             )}
           </div>

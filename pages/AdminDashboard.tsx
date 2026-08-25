@@ -41,12 +41,12 @@ const AdminDashboard: React.FC = () => {
   // KPI Data
   const highPotentials = metrics.filter(m => m.isHighPotential);
   const topPerformers = metrics.slice(0, 5);
-  const globalAverage = Math.round(metrics.reduce((acc, curr) => acc + curr.averageScore, 0) / (metrics.length || 1));
+  const globalAverage = Math.round(metrics.reduce((acc, curr) => acc + (curr.averageScore || 0), 0) / (metrics.length || 1));
 
   // Performance Chart Data
   const performanceChartData = metrics.map(m => ({
-    name: m.userName.split(' ')[0], 
-    score: m.averageScore,
+    name: (m.userName || '未命名').split(' ')[0], 
+    score: m.averageScore || 0,
     isHighPotential: m.isHighPotential
   }));
 
@@ -144,23 +144,25 @@ const AdminDashboard: React.FC = () => {
   const enhancedDeptStats = useMemo(() => {
     const depts: Record<string, { totalEmployees: number; completedCourses: number; totalHours: number; totalScore: number; scoreCount: number }> = {};
     allUsers.filter(u => u.role === 'employee').forEach(u => {
-      if (!depts[u.department]) {
-        depts[u.department] = { totalEmployees: 0, completedCourses: 0, totalHours: 0, totalScore: 0, scoreCount: 0 };
+      const deptName = u.department || '未分配部門';
+      if (!depts[deptName]) {
+        depts[deptName] = { totalEmployees: 0, completedCourses: 0, totalHours: 0, totalScore: 0, scoreCount: 0 };
       }
-      depts[u.department].totalEmployees++;
+      depts[deptName].totalEmployees++;
     });
 
     progress.forEach(p => {
       const u = allUsers.find(user => user.id === p.userId);
       const c = courses.find(course => course.id === p.courseId);
-      if (u && depts[u.department]) {
+      const deptName = u?.department || '未分配部門';
+      if (u && depts[deptName]) {
         if (p.completed) {
-          depts[u.department].completedCourses++;
-          depts[u.department].totalHours += (c?.durationSeconds || 3600) / 3600;
+          depts[deptName].completedCourses++;
+          depts[deptName].totalHours += (c?.durationSeconds || 3600) / 3600;
         }
         if (p.quizScore !== null && p.quizScore !== undefined) {
-          depts[u.department].totalScore += p.quizScore;
-          depts[u.department].scoreCount++;
+          depts[deptName].totalScore += p.quizScore;
+          depts[deptName].scoreCount++;
         }
       }
     });
@@ -192,10 +194,10 @@ const AdminDashboard: React.FC = () => {
     // Find targeted users
     let targetUsers = allUsers.filter(u => u.role === 'employee');
     if (currentSelectedCompCourse.compulsoryTargets) {
-      const depts = currentSelectedCompCourse.compulsoryTargets.departments || [];
-      const uids = currentSelectedCompCourse.compulsoryTargets.userIds || [];
+      const depts = currentSelectedCompCourse.compulsoryTargets?.departments || [];
+      const uids = currentSelectedCompCourse.compulsoryTargets?.userIds || [];
       if (depts.length > 0 || uids.length > 0) {
-        targetUsers = targetUsers.filter(u => depts.includes(u.department) || uids.includes(u.id));
+        targetUsers = targetUsers.filter(u => depts.includes(u.department || '') || uids.includes(u.id));
       }
     }
 
