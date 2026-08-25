@@ -577,11 +577,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         avgScore = Math.round(sum / totalCourses);
       }
 
-      // --- Dynamic 9-Box Calculation ---
-      const perfHistory = u.profile?.performanceHistory || [];
+      // --- Dynamic 9-Box Calculation (with null safety) ---
+      const perfHistory = (u.profile?.performanceHistory) || [];
       let avgPerf = 0;
       if (perfHistory.length > 0) {
-        avgPerf = perfHistory.reduce((acc, curr) => acc + curr.rating, 0) / perfHistory.length;
+        avgPerf = perfHistory.reduce((acc: number, curr: any) => acc + (curr?.rating || 0), 0) / perfHistory.length;
       }
       
       let perfCategory: 'Low' | 'Medium' | 'High' = 'Low';
@@ -598,18 +598,18 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       else if (totalPotential >= 60) potCategory = 'Medium';
 
       const updatedProfile = {
-        ...u.profile,
+        ...(u.profile || {}),
         nineBoxPosition: { performance: perfCategory, potential: potCategory }
       };
 
       return {
         userId: u.id,
-        userName: u.name,
-        department: u.department,
+        userName: u.name || '',
+        department: u.department || '',
         averageScore: avgScore,
         completedCoursesCount: completedCourses,
         isHighPotential: potCategory === 'High' && perfCategory === 'High',
-        profile: updatedProfile,
+        profile: updatedProfile as any,
         calculatedPot: totalPotential,
         calculatedPerf: avgPerf,
         internalEmail: u.internalEmail
