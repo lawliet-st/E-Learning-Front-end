@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useStore } from '../store';
 import { Link } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie } from 'recharts';
-import { Trophy, TrendingUp, Users, Download, Filter, X, Check, BookOpen, Calendar, ClipboardList, AlertCircle, FileSpreadsheet, CheckCircle2, ChevronRight, Printer, FileText, Send, Sparkles, Building2, UserCheck, Award } from 'lucide-react';
+import { Trophy, TrendingUp, Users, Download, Filter, X, Check, BookOpen, Calendar, ClipboardList, AlertCircle, FileSpreadsheet, CheckCircle2, ChevronRight, Printer, FileText, Send, Sparkles, Building2, UserCheck, Award, Star } from 'lucide-react';
 import { Course, User } from '../types';
 
 const AdminDashboard: React.FC = () => {
