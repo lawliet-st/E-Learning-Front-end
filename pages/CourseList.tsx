@@ -249,7 +249,7 @@ const CourseList: React.FC = () => {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-xl font-bold tracking-wide">盛餘領航者公告</h2>
+                <h2 className="text-xl font-bold tracking-wide">盛餘HRD領航者公告</h2>
                 <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-brand-500/30 text-brand-300 border border-brand-400/40">
                   LMS Navigator
                 </span>
@@ -443,7 +443,7 @@ const CourseList: React.FC = () => {
             <div className="flex justify-between items-center pb-4 border-b border-gray-100">
               <div className="flex items-center gap-2">
                 <Megaphone className="h-5 w-5 text-brand-600" />
-                <h3 className="text-lg font-bold text-slate-900">盛餘領航者公告管理</h3>
+                <h3 className="text-lg font-bold text-slate-900">盛餘HRD領航者公告管理</h3>
               </div>
               <button onClick={() => { setShowAnnModal(false); setEditingAnn(null); }} className="p-1.5 hover:bg-slate-100 rounded-full text-slate-400">
                 <X className="h-5 w-5" />
@@ -623,7 +623,7 @@ const CourseList: React.FC = () => {
       <section className="bg-white p-6 rounded-3xl shadow-sm border border-gray-200 space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 pb-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">企業內訓課程</h1>
+            <h1 className="text-2xl font-bold text-slate-900">線上訓練課程</h1>
             <p className="text-xs text-slate-500 mt-1">透過多維度篩選與搜尋，精準探索提升職場實力的專業內訓內容。</p>
           </div>
           <div className="text-xs font-medium text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full self-start md:self-auto">

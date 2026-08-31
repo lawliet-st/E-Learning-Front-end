@@ -35,7 +35,7 @@ const Login: React.FC = () => {
           </div>
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-900">
-          盛餘AI HRD領航者
+          盛餘HRD領航者
         </h2>
         <p className="mt-2 text-center text-sm text-slate-600">
           登入方式與 SHR 人資系統相同

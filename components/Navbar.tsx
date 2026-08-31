@@ -22,7 +22,7 @@ const Navbar: React.FC = () => {
               <div className="bg-brand-600 p-2 rounded-lg">
                 <BookOpen className="h-6 w-6 text-white" />
               </div>
-              <span className="font-bold text-xl text-slate-900 tracking-tight">盛餘AI HRD領航者</span>
+              <span className="font-bold text-xl text-slate-900 tracking-tight">盛餘HRD領航者</span>
             </Link>
           </div>
 

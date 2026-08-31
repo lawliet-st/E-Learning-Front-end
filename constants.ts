@@ -235,7 +235,7 @@ export const MOCK_CATEGORIES = [
 export const MOCK_ANNOUNCEMENTS = [
   {
     id: 1,
-    title: '【盛餘領航者】歡迎使用盛餘數位學習平台',
+    title: '【盛餘HRD領航者】歡迎使用盛餘數位學習平台',
     content: '全方位內部培訓平台正式上線，提供各領域專業內訓課程、影音學習與線上測驗，歡迎同仁踴躍進修！',
     type: 'system' as const,
     imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&auto=format&fit=crop&q=80',
