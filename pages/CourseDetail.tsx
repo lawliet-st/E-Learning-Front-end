@@ -15,6 +15,7 @@ const CourseDetail: React.FC = () => {
   const [showAfkModal, setShowAfkModal] = useState(false);
   const [isUnlockedManually, setIsUnlockedManually] = useState(false);
   const [showUnlockConfirmModal, setShowUnlockConfirmModal] = useState(false);
+  const [videoError, setVideoError] = useState<string | null>(null);
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const lastActivityTime = useRef(Date.now());
@@ -55,6 +56,7 @@ const CourseDetail: React.FC = () => {
 
   const handleStartVideo = () => {
     setIsPlaying(true);
+    setVideoError(null);
     isAfkRef.current = false;
     lastActivityTime.current = Date.now();
     if (!timerRef.current) {
@@ -180,12 +182,47 @@ const CourseDetail: React.FC = () => {
                     </button>
                   </div>
                 ) : isNativeVideo ? (
-                  <video
-                    src={course.videoUrl.startsWith('/') ? encodeURI(course.videoUrl) : course.videoUrl}
-                    controls
-                    autoPlay
-                    className="w-full h-full object-contain bg-black"
-                  />
+                  <div className="relative w-full h-full">
+                    <video
+                      src={course.videoUrl.startsWith('/') ? encodeURI(course.videoUrl) : course.videoUrl}
+                      controls
+                      autoPlay
+                      className="w-full h-full object-contain bg-black"
+                      onError={(e) => {
+                        const err = e.currentTarget.error;
+                        let msg = "影片載入失敗";
+                        if (err) {
+                          if (err.code === 4) {
+                            msg = "無法載入影片來源 (伺服器未找到該檔案，或格式無法解碼)";
+                          } else if (err.code === 3) {
+                            msg = "影片解碼錯誤 (可能為未支援的 HEVC/H.265 編碼)";
+                          } else if (err.code === 2) {
+                            msg = "網路連線中斷";
+                          }
+                        }
+                        setVideoError(msg);
+                      }}
+                    />
+                    {videoError && (
+                      <div className="absolute inset-0 bg-slate-900/95 flex flex-col items-center justify-center p-6 text-center z-20">
+                        <AlertCircle className="h-12 w-12 text-amber-400 mb-3" />
+                        <h4 className="text-white font-bold text-lg mb-2">{videoError}</h4>
+                        <p className="text-slate-300 text-sm mb-4 max-w-md">
+                          若為瀏覽器編碼相容性問題，可點擊下方按鈕直接在新分頁開啟或下載測試：
+                        </p>
+                        <div className="flex gap-3">
+                          <a
+                            href={course.videoUrl.startsWith('/') ? encodeURI(course.videoUrl) : course.videoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2 rounded-lg inline-flex items-center gap-2"
+                          >
+                            在新分頁開啟 / 下載影片檔
+                          </a>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <iframe
                     width="100%"
