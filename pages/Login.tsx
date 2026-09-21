@@ -129,16 +129,18 @@ const Login: React.FC = () => {
 
             <div className="mt-6 grid grid-cols-2 gap-3">
               <button
-                onClick={() => fillCredential('admin001', 'A123456789')}
-                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                type="button"
+                onClick={() => fillCredential('25016', 'A123456789')}
+                className="w-full inline-flex justify-center items-center py-2 px-3 border border-amber-300 rounded-md shadow-sm bg-amber-50 text-xs font-semibold text-amber-800 hover:bg-amber-100"
               >
-                管理員 (Admin)
+                👑 25016 (主控者)
               </button>
               <button
-                onClick={() => fillCredential('E10001', 'A223456789')}
-                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                type="button"
+                onClick={() => fillCredential('98014', 'A123456789')}
+                className="w-full inline-flex justify-center items-center py-2 px-3 border border-amber-300 rounded-md shadow-sm bg-amber-50 text-xs font-semibold text-amber-800 hover:bg-amber-100"
               >
-                員工 (Alice)
+                👑 98014 (主管主控)
               </button>
             </div>
           </div>
