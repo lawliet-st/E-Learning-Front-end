@@ -23,7 +23,13 @@ const CourseDetail: React.FC = () => {
   const course = courses.find(c => c.id === id);
   const progress = id ? getCourseProgress(id) : undefined;
 
-  const isNativeVideo = course?.videoUrl?.startsWith('/uploads') || course?.videoUrl?.endsWith('.mp4');
+  const isNativeVideo = Boolean(
+    course?.videoUrl?.startsWith('/uploads') ||
+    course?.videoUrl?.toLowerCase().includes('.mp4') ||
+    course?.videoUrl?.toLowerCase().includes('.webm') ||
+    course?.videoUrl?.toLowerCase().includes('.mkv') ||
+    course?.videoUrl?.toLowerCase().includes('.mov')
+  );
 
   useEffect(() => {
     const handleActivity = () => { lastActivityTime.current = Date.now(); };
@@ -175,7 +181,7 @@ const CourseDetail: React.FC = () => {
                   </div>
                 ) : isNativeVideo ? (
                   <video
-                    src={course.videoUrl}
+                    src={course.videoUrl.startsWith('/') ? encodeURI(course.videoUrl) : course.videoUrl}
                     controls
                     autoPlay
                     className="w-full h-full object-contain bg-black"
@@ -199,7 +205,7 @@ const CourseDetail: React.FC = () => {
             ) : course.pdfUrl ? (
               <div className="w-full h-full bg-slate-900 relative">
                 <iframe
-                  src={course.pdfUrl}
+                  src={course.pdfUrl.startsWith('/') ? encodeURI(course.pdfUrl) : course.pdfUrl}
                   className="w-full h-full border-0"
                   title={`${course.title} - 講義教材`}
                 />
