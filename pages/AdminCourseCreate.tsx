@@ -14,6 +14,7 @@ const AdminCourseManagement: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [searchUserQuery, setSearchUserQuery] = useState('');
   const [uploadingState, setUploadingState] = useState<{video: boolean, pdf: boolean, image: boolean}>({video: false, pdf: false, image: false});
+  const [uploadProgress, setUploadProgress] = useState<{percent: number, loadedMB: number, totalMB: number} | null>(null);
 
   // Modal States
   const [showCategoryModal, setShowCategoryModal] = useState(false);
@@ -119,39 +120,127 @@ const AdminCourseManagement: React.FC = () => {
     });
   };
 
+  const uploadFileInChunks = async (
+    file: File,
+    onProgress: (percent: number, loadedMB: number, totalMB: number) => void
+  ): Promise<string> => {
+    const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB 每片，完全突破 Nginx 及記憶體限制
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+    const uploadId = 'up_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
+    const token = localStorage.getItem('nexus_token');
+
+    for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+      const start = chunkIndex * CHUNK_SIZE;
+      const end = Math.min(start + CHUNK_SIZE, file.size);
+      const chunkBlob = file.slice(start, end);
+
+      let attempts = 0;
+      let success = false;
+      while (attempts < 3 && !success) {
+        try {
+          const res = await fetch('/api/upload/chunk', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/octet-stream',
+              'Authorization': `Bearer ${token}`,
+              'x-upload-id': uploadId,
+              'x-chunk-index': String(chunkIndex),
+              'x-total-chunks': String(totalChunks)
+            },
+            body: chunkBlob
+          });
+          if (!res.ok) throw new Error(`Chunk ${chunkIndex} 傳輸失敗 (${res.status})`);
+          success = true;
+        } catch (err) {
+          attempts++;
+          if (attempts >= 3) throw err;
+          await new Promise(r => setTimeout(r, 1000));
+        }
+      }
+
+      const percent = Math.round(((chunkIndex + 1) / totalChunks) * 100);
+      const loadedMB = Number((Math.min(end, file.size) / (1024 * 1024)).toFixed(1));
+      const totalMB = Number((file.size / (1024 * 1024)).toFixed(1));
+      onProgress(percent, loadedMB, totalMB);
+    }
+
+    // 所有分片上傳完畢，調用合併端點
+    const mergeRes = await fetch('/api/upload/merge', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        upload_id: uploadId,
+        filename: file.name,
+        total_chunks: totalChunks,
+        expected_size: file.size
+      })
+    });
+
+    if (!mergeRes.ok) {
+      const errData = await mergeRes.json().catch(() => ({}));
+      throw new Error(errData.detail || '伺服器合併影片失敗');
+    }
+
+    const mergeData = await mergeRes.json();
+    return mergeData.url;
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'videoUrl' | 'pdfUrl' | 'thumbnail') => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const typeKey = field === 'videoUrl' ? 'video' : field === 'pdfUrl' ? 'pdf' : 'image';
     setUploadingState(prev => ({ ...prev, [typeKey]: true }));
+    const totalMB = Number((file.size / (1024 * 1024)).toFixed(1));
+    setUploadProgress({ percent: 0, loadedMB: 0, totalMB });
 
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const base64 = reader.result as string;
-      try {
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('nexus_token')}`
-          },
-          body: JSON.stringify({ filename: file.name, fileB64: base64 })
+    try {
+      // 影片檔案或大於 2MB 的講義一律採用無上限流式「分片上傳」
+      if (file.size > 2 * 1024 * 1024 || field === 'videoUrl') {
+        const url = await uploadFileInChunks(file, (percent, loadedMB, totalMB) => {
+          setUploadProgress({ percent, loadedMB, totalMB });
         });
-        const data = await res.json();
-        if (res.ok && data.url) {
-          setForm(prev => ({ ...prev, [field]: data.url }));
-        } else {
-          alert('上傳失敗');
-        }
-      } catch (error) {
-        console.error('Upload error', error);
-        alert('上傳失敗');
-      } finally {
-        setUploadingState(prev => ({ ...prev, [typeKey]: false }));
+        setForm(prev => ({ ...prev, [field]: url }));
+      } else {
+        // 小圖片或小型文件走一般快速通道
+        const reader = new FileReader();
+        await new Promise<void>((resolve, reject) => {
+          reader.onload = async () => {
+            try {
+              const res = await fetch('/api/upload', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${localStorage.getItem('nexus_token')}`
+                },
+                body: JSON.stringify({ filename: file.name, fileB64: reader.result as string })
+              });
+              const data = await res.json();
+              if (res.ok && data.url) {
+                setForm(prev => ({ ...prev, [field]: data.url }));
+                resolve();
+              } else {
+                reject(new Error(data.detail || '上傳失敗'));
+              }
+            } catch (err) {
+              reject(err);
+            }
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
       }
-    };
-    reader.readAsDataURL(file);
+    } catch (error: any) {
+      console.error('Upload error', error);
+      alert(`檔案上傳失敗：${error.message || error}`);
+    } finally {
+      setUploadingState(prev => ({ ...prev, [typeKey]: false }));
+      setUploadProgress(null);
+      e.target.value = '';
+    }
   };
 
   // Save handler (as draft or published)
@@ -509,6 +598,28 @@ const AdminCourseManagement: React.FC = () => {
               </label>
             </div>
           </div>
+
+          {/* 上傳進度條 */}
+          {uploadProgress && (
+            <div className="bg-brand-50 border border-brand-200 rounded-2xl p-4 shadow-sm">
+              <div className="flex justify-between items-center text-xs font-bold text-brand-900 mb-2">
+                <span className="flex items-center gap-2">
+                  <span className="inline-block w-2 h-2 rounded-full bg-brand-600 animate-ping"></span>
+                  正在進行高容錯分片傳輸... ({uploadProgress.loadedMB} MB / {uploadProgress.totalMB} MB)
+                </span>
+                <span className="font-mono text-sm text-brand-700">{uploadProgress.percent}%</span>
+              </div>
+              <div className="w-full bg-brand-100 rounded-full h-3 overflow-hidden p-0.5">
+                <div
+                  className="bg-gradient-to-r from-brand-500 to-brand-700 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress.percent}%` }}
+                ></div>
+              </div>
+              <p className="text-[11px] text-slate-500 mt-2">
+                * 系統採用 5MB 分塊流式傳輸技術，支援數百 MB 超大影音檔案，上傳期間請勿重整網頁。
+              </p>
+            </div>
+          )}
 
           {/* 能力指標設定 (0-100) */}
           <div className="border-t border-gray-100 pt-6">
