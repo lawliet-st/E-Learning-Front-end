@@ -84,8 +84,11 @@ const MyLearning: React.FC = () => {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 bg-white p-6 rounded-3xl shadow-sm border border-gray-200">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">我的學習儀表板</h1>
-          <p className="text-xs text-slate-500 mt-1">追蹤個人的線上訓練時數、測驗成果與能力成長指標。</p>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-slate-900">我的學習儀表板</h1>
+            <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-md">マイラーニング (My Learning)</span>
+          </div>
+          <p className="text-xs text-slate-500 mt-1">追蹤個人的線上訓練時數、測驗成果與能力成長指標。 <span className="text-slate-400 font-normal">/ 個人の学習進捗・テスト結果管理</span></p>
         </div>
 
         {/* Action button: Talent potential marked as coming soon */}
@@ -97,7 +100,7 @@ const MyLearning: React.FC = () => {
               className="flex items-center gap-2 bg-slate-100 text-slate-500 font-bold px-4 py-2.5 rounded-xl border border-slate-200 text-xs hover:bg-slate-200 transition-all cursor-pointer"
             >
               <ClipboardList className="h-4 w-4 text-slate-400" />
-              <span>人才潛力評估 (暫不開放)</span>
+              <span>人才潛力評估 (暫不開放) / 診断準備中</span>
             </button>
           </div>
         </div>
@@ -110,8 +113,8 @@ const MyLearning: React.FC = () => {
             <Book className="h-6 w-6 text-brand-600" />
           </div>
           <div>
-            <p className="text-xs text-slate-500 font-semibold">總課程數</p>
-            <p className="text-2xl font-black text-slate-850 mt-0.5">{courses.length}</p>
+            <p className="text-xs text-slate-500 font-semibold">總課程數 / 総コース数</p>
+            <p className="text-2xl font-black text-slate-850 mt-0.5">{courses.length} <span className="text-xs font-normal text-slate-400">門</span></p>
           </div>
         </div>
 
@@ -120,8 +123,8 @@ const MyLearning: React.FC = () => {
             <CheckCircle className="h-6 w-6 text-emerald-600" />
           </div>
           <div>
-            <p className="text-xs text-slate-500 font-semibold">已通過完成</p>
-            <p className="text-2xl font-black text-slate-850 mt-0.5">{completed}</p>
+            <p className="text-xs text-slate-500 font-semibold">已通過完成 / 修了済み</p>
+            <p className="text-2xl font-black text-slate-850 mt-0.5">{completed} <span className="text-xs font-normal text-slate-400">門</span></p>
           </div>
         </div>
 
@@ -130,7 +133,7 @@ const MyLearning: React.FC = () => {
             <Award className="h-6 w-6 text-indigo-600" />
           </div>
           <div>
-            <p className="text-xs text-slate-500 font-semibold">測驗平均成績</p>
+            <p className="text-xs text-slate-500 font-semibold">測驗平均成績 / 平均スコア</p>
             <p className="text-2xl font-black text-slate-850 mt-0.5">
               {completed > 0 
                 ? Math.round(myCourses.filter(c => c.progress?.completed).reduce((acc, c) => acc + (c.progress?.quizScore || 0), 0) / completed) + ' 分' 
@@ -144,7 +147,7 @@ const MyLearning: React.FC = () => {
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            我的課程清單
+            我的課程清單 <span className="text-xs font-normal text-slate-400">/ マイコース一覧</span>
             <span className="text-xs font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">
               共 {filteredCourseList.length} 堂
             </span>

@@ -218,9 +218,10 @@ const AdminUserManagement: React.FC = () => {
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-slate-900">使用者管理與權限指派</h1>
+            <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-md">ユーザー管理・権限設定</span>
             {isCurrentUserSuperAdmin ? (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300">
-                <Crown className="w-3.5 h-3.5 text-amber-600" /> 系統主控者模式
+                <Crown className="w-3.5 h-3.5 text-amber-600" /> 系統主控者模式 <span className="text-[10px] font-normal opacity-80">(主幹)</span>
               </span>
             ) : (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
@@ -229,12 +230,12 @@ const AdminUserManagement: React.FC = () => {
             )}
           </div>
           <p className="text-sm text-slate-500 mt-1">
-            全體同仁總覽、學習檔案檢視，以及系統管理者權限配置管控
+            全體同仁總覽、學習檔案檢視，以及系統管理者權限配置管控 <span className="text-slate-400 font-normal text-xs">/ 社員情報一覧・権限付与</span>
           </p>
         </div>
 
-        <button onClick={startAdd} className="bg-brand-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-brand-700 shadow-sm transition">
-          <Plus className="h-4 w-4" /> 新增使用者
+        <button onClick={startAdd} className="bg-brand-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-brand-700 shadow-sm transition text-xs font-bold">
+          <Plus className="h-4 w-4" /> 新增使用者 <span className="text-[10px] font-normal opacity-80">/ 新規追加</span>
         </button>
       </div>
 
@@ -361,13 +362,13 @@ const AdminUserManagement: React.FC = () => {
             onClick={() => handleRoleFilterChange('all')}
             className={`px-3 py-1.5 rounded-md text-xs font-medium transition whitespace-nowrap ${selectedRoleFilter === 'all' ? 'bg-white text-brand-700 shadow-sm font-bold' : 'text-slate-600 hover:text-slate-900'}`}
           >
-            全部同仁 ({counts.all})
+            全部 ({counts.all}) <span className="text-[10px] font-normal opacity-70">/ 全員</span>
           </button>
           <button
             onClick={() => handleRoleFilterChange('superadmin')}
             className={`px-3 py-1.5 rounded-md text-xs font-medium transition whitespace-nowrap flex items-center gap-1 ${selectedRoleFilter === 'superadmin' ? 'bg-white text-amber-800 shadow-sm font-bold' : 'text-slate-600 hover:text-slate-900'}`}
           >
-            <Crown className="w-3.5 h-3.5 text-amber-500" /> 主控者 ({counts.superadmin})
+            <Crown className="w-3.5 h-3.5 text-amber-500" /> 主控者 ({counts.superadmin}) <span className="text-[10px] font-normal opacity-70">/ 主幹</span>
           </button>
           <button
             onClick={() => handleRoleFilterChange('admin')}
@@ -379,7 +380,7 @@ const AdminUserManagement: React.FC = () => {
             onClick={() => handleRoleFilterChange('employee')}
             className={`px-3 py-1.5 rounded-md text-xs font-medium transition whitespace-nowrap ${selectedRoleFilter === 'employee' ? 'bg-white text-slate-800 shadow-sm font-bold' : 'text-slate-600 hover:text-slate-900'}`}
           >
-            一般同仁 ({counts.employee})
+            一般同仁 ({counts.employee}) <span className="text-[10px] font-normal opacity-70">/ 一般</span>
           </button>
         </div>
 
@@ -390,7 +391,7 @@ const AdminUserManagement: React.FC = () => {
             type="text"
             value={searchTerm}
             onChange={handleSearchChange}
-            placeholder="搜尋姓名、工號或部門..."
+            placeholder="搜尋姓名、工號或部門... / 検索..."
             className="w-full pl-9 pr-8 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
           />
           {searchTerm && (
@@ -407,20 +408,20 @@ const AdminUserManagement: React.FC = () => {
           <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                   <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">同仁 (工號 / 姓名)</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">職稱</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">部門</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">聯絡信箱</th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">目前身分</th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">管理者權限管控</th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">同仁 (工號/姓名) <span className="text-[10px] text-gray-400 font-normal">/ 社員</span></th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">職稱 <span className="text-[10px] text-gray-400 font-normal">/ 役職</span></th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">部門 <span className="text-[10px] text-gray-400 font-normal">/ 部署</span></th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">聯絡信箱 <span className="text-[10px] text-gray-400 font-normal">/ メール</span></th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">目前身分 <span className="text-[10px] text-gray-400 font-normal">/ 権限</span></th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">管理者權限管控 <span className="text-[10px] text-gray-400 font-normal">/ 権限設定</span></th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作 <span className="text-[10px] text-gray-400 font-normal">/ 操作</span></th>
                   </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                   {pagedUsers.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="px-6 py-12 text-center text-gray-400 text-sm">
-                        查無符合篩選條件的同仁資料
+                        查無符合篩選條件的同仁資料 / 該当するデータがありません
                       </td>
                     </tr>
                   ) : (

@@ -39,7 +39,7 @@ const CourseCard: React.FC<{ course: Course; isCompleted: boolean; isCompulsory:
                 </div>
                 {isCompleted && (
                     <div className="absolute top-2 right-2 bg-emerald-500 text-white text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm">
-                        <CheckCircle className="h-3.5 w-3.5" /> 已完成
+                        <CheckCircle className="h-3.5 w-3.5" /> 已完成 / 修了
                     </div>
                 )}
                 <div className="absolute bottom-2 left-2 bg-slate-900/80 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-lg font-medium">
@@ -57,11 +57,11 @@ const CourseCard: React.FC<{ course: Course; isCompleted: boolean; isCompulsory:
                         <div className="flex items-center gap-1.5 flex-shrink-0">
                           {isCompulsory ? (
                             <span className="bg-red-50 text-red-600 border border-red-200 text-xs px-2.5 py-0.5 rounded-full font-bold whitespace-nowrap">
-                              推薦/必修
+                              推薦/必修 <span className="text-[10px] font-normal opacity-80">(必修)</span>
                             </span>
                           ) : (
                             <span className="bg-slate-100 text-slate-600 text-xs px-2.5 py-0.5 rounded-full font-medium whitespace-nowrap">
-                              選修
+                              選修 <span className="text-[10px] font-normal opacity-80">(選択)</span>
                             </span>
                           )}
                         </div>
@@ -76,14 +76,14 @@ const CourseCard: React.FC<{ course: Course; isCompleted: boolean; isCompulsory:
                       to={`/course/${course.id}`} 
                       className="text-xs font-bold text-white bg-brand-600 px-4 py-2 rounded-xl hover:bg-brand-700 shadow-sm transition-all flex items-center gap-1"
                     >
-                      <PlayCircle className="h-3.5 w-3.5" /> 開始學習
+                      <PlayCircle className="h-3.5 w-3.5" /> 開始學習 <span className="text-[10px] font-normal opacity-90">/ 受講開始</span>
                     </Link>
                     {course.visualSummary && (
                         <button 
                             onClick={(e) => { e.preventDefault(); onShowVisual(course); }}
                             className="text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-2 rounded-xl hover:bg-slate-200 flex items-center gap-1 transition-colors"
                         >
-                            <Info className="h-3.5 w-3.5 text-brand-600" /> 課程簡介
+                            <Info className="h-3.5 w-3.5 text-brand-600" /> 課程簡介 <span className="text-[10px] text-slate-400 font-normal">/ 概要</span>
                         </button>
                     )}
                     <div className="flex items-center text-xs text-slate-400 ml-auto font-mono">
@@ -250,6 +250,7 @@ const CourseList: React.FC = () => {
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-xl font-bold tracking-wide">盛餘HRD領航者公告</h2>
+                <span className="text-xs text-indigo-300 font-normal">/ 社内研修・重要なお知らせ</span>
                 <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-brand-500/30 text-brand-300 border border-brand-400/40">
                   LMS Navigator
                 </span>
@@ -258,12 +259,12 @@ const CourseList: React.FC = () => {
             </div>
           </div>
 
-          {user?.role === 'admin' && (
+          {(user?.role === 'admin' || user?.role === 'superadmin') && (
             <button
               onClick={() => setShowAnnModal(true)}
               className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-all shadow-md self-start md:self-auto"
             >
-              <Edit2 className="h-3.5 w-3.5" /> 公告管控
+              <Edit2 className="h-3.5 w-3.5" /> 公告管控 <span className="text-[10px] opacity-80 font-normal">/ 管理</span>
             </button>
           )}
         </div>
@@ -623,8 +624,11 @@ const CourseList: React.FC = () => {
       <section className="bg-white p-6 rounded-3xl shadow-sm border border-gray-200 space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 pb-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">線上訓練課程</h1>
-            <p className="text-xs text-slate-500 mt-1">透過多維度篩選與搜尋，精準探索提升職場實力的專業內訓內容。</p>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-bold text-slate-900">線上訓練課程</h1>
+              <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-md">オンライン研修コース</span>
+            </div>
+            <p className="text-xs text-slate-500 mt-1">透過多維度篩選與搜尋，精準探索提升職場實力的專業內訓內容。 <span className="text-slate-400 font-normal">/ 社内e-ラーニングプログラム</span></p>
           </div>
           <div className="text-xs font-medium text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full self-start md:self-auto">
             共找到 <strong className="text-brand-600 font-bold">{filteredCourses.length}</strong> 門符合條件的課程
@@ -638,7 +642,7 @@ const CourseList: React.FC = () => {
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
             <input 
               type="text" 
-              placeholder="搜尋課程標題或關鍵字..." 
+              placeholder="搜尋課程標題或關鍵字... / コース名検索..." 
               value={searchKeyword}
               onChange={(e) => setSearchKeyword(e.target.value)}
               className="w-full pl-9 pr-3 py-2 text-xs border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"

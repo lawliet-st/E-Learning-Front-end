@@ -887,8 +887,11 @@ const AdminCourseManagement: React.FC = () => {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl shadow-sm border border-gray-200">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">課程管理中心</h1>
-          <p className="text-xs text-slate-500 mt-0.5">管理內部教育訓練課程、題庫設定、開放狀態切換、分類編輯與學員成績名冊查看。</p>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-slate-900">課程管理中心</h1>
+            <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-md">コース管理センター</span>
+          </div>
+          <p className="text-xs text-slate-500 mt-0.5">管理內部教育訓練課程、題庫設定、開放狀態切換、分類編輯與學員成績名冊查看。 <span className="text-slate-400 font-normal">/ 研修コンテンツ・問題管理</span></p>
         </div>
         
         <div className="flex items-center gap-3">
@@ -896,14 +899,14 @@ const AdminCourseManagement: React.FC = () => {
             onClick={() => setShowCategoryModal(true)}
             className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 transition-all"
           >
-            <FolderPlus className="h-4 w-4 text-brand-600" /> 分類設定管理
+            <FolderPlus className="h-4 w-4 text-brand-600" /> 分類設定管理 <span className="text-[10px] text-slate-400 font-normal">/ カテゴリ</span>
           </button>
           
           <button 
             onClick={startCreate} 
             className="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow-md transition-all"
           >
-            <PlusCircle className="h-4 w-4" /> 新增課程
+            <PlusCircle className="h-4 w-4" /> 新增課程 <span className="text-[10px] font-normal opacity-80">/ 新規作成</span>
           </button>
         </div>
       </div>
@@ -913,11 +916,11 @@ const AdminCourseManagement: React.FC = () => {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-slate-50">
             <tr>
-              <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">課程縮圖</th>
-              <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">課程名稱與分類</th>
-              <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">題目數 / 及格標準</th>
-              <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">狀態 / 開放管控</th>
-              <th className="px-6 py-3.5 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">操作功能</th>
+              <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">課程縮圖 <span className="text-[10px] text-slate-400 font-normal">/ サムネイル</span></th>
+              <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">課程名稱與分類 <span className="text-[10px] text-slate-400 font-normal">/ コース名・分類</span></th>
+              <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">題目數 / 及格標準 <span className="text-[10px] text-slate-400 font-normal">/ 問題数・基準</span></th>
+              <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">狀態 / 開放管控 <span className="text-[10px] text-slate-400 font-normal">/ ステータス</span></th>
+              <th className="px-6 py-3.5 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">操作功能 <span className="text-[10px] text-slate-400 font-normal">/ 操作</span></th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-100 text-xs">

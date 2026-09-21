@@ -169,14 +169,17 @@ const AdminLearningRecords: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">員工學習狀況查詢</h1>
-          <p className="text-slate-600 text-sm mt-1">追蹤各部門與個別同仁在線上課程的點閱、測驗以及問卷滿意度記錄。</p>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-slate-900">員工學習狀況查詢</h1>
+            <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-md">受講履歴照会 (Learning Records)</span>
+          </div>
+          <p className="text-slate-500 text-xs mt-1">追蹤各部門與個別同仁在線上課程的點閱、測驗以及問卷滿意度記錄。 <span className="text-slate-400 font-normal">/ 全社員の受講進捗・テスト結果照会</span></p>
         </div>
         <button 
           onClick={handleExportCSV} 
-          className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2.5 rounded-xl shadow-sm transition-colors"
+          className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm transition-colors"
         >
-          <Download className="h-4 w-4" /> 匯出篩選結果 (CSV)
+          <Download className="h-4 w-4" /> 匯出篩選結果 (CSV) <span className="text-[10px] font-normal opacity-80">/ CSVエクスポート</span>
         </button>
       </div>
 

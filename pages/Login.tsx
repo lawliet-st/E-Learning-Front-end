@@ -41,8 +41,11 @@ const Login: React.FC = () => {
         <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-900">
           盛餘HRD領航者
         </h2>
-        <p className="mt-2 text-center text-sm text-slate-600">
-          登入方式與 SHR 人資系統相同
+        <p className="text-center text-xs text-slate-400 font-medium tracking-wide mt-1">
+          SYSCO HRD ナビゲーター · e-ラーニング研修プラットフォーム
+        </p>
+        <p className="mt-2 text-center text-xs text-slate-500">
+          登入方式與 SHR 人資系統相同 <span className="text-[11px] text-slate-400 block mt-0.5">(SHR人事システムと同じアカウントでログイン)</span>
         </p>
       </div>
 
@@ -65,7 +68,7 @@ const Login: React.FC = () => {
 
             <div>
               <label htmlFor="employeeId" className="block text-sm font-medium text-gray-700">
-                員工編號
+                員工編號 <span className="text-xs text-slate-400 font-normal">/ 社員番号 (ID)</span>
               </label>
               <div className="mt-1">
                 <input
@@ -76,14 +79,14 @@ const Login: React.FC = () => {
                   value={employeeId}
                   onChange={(e) => setEmployeeId(e.target.value)}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm"
-                  placeholder="例如：05432"
+                  placeholder="例如：25016 / 05432"
                 />
               </div>
             </div>
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                密碼 (預設為身分證字號)
+                密碼 <span className="text-xs text-slate-400 font-normal">/ パスワード (預設身分證字號)</span>
               </label>
               <div className="mt-1">
                 <input
@@ -108,10 +111,10 @@ const Login: React.FC = () => {
                 {isLoading ? (
                   <span className="flex items-center gap-2">
                     <Loader2 className="animate-spin h-4 w-4 text-white" />
-                    <span>登入中，請稍候...</span>
+                    <span>登入中，請稍候... / ログイン中...</span>
                   </span>
                 ) : (
-                  <span>登入</span>
+                  <span>登入 / ログイン</span>
                 )}
               </button>
             </div>
@@ -123,7 +126,7 @@ const Login: React.FC = () => {
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">快速登入 (測試用)</span>
+                <span className="px-2 bg-white text-gray-400 text-xs">快速登入 (測試用) / クイックログイン</span>
               </div>
             </div>
 
@@ -131,16 +134,18 @@ const Login: React.FC = () => {
               <button
                 type="button"
                 onClick={() => fillCredential('25016', 'A123456789')}
-                className="w-full inline-flex justify-center items-center py-2 px-3 border border-amber-300 rounded-md shadow-sm bg-amber-50 text-xs font-semibold text-amber-800 hover:bg-amber-100"
+                className="w-full inline-flex flex-col justify-center items-center py-2 px-3 border border-amber-300 rounded-md shadow-sm bg-amber-50 text-xs font-semibold text-amber-800 hover:bg-amber-100"
               >
-                👑 25016 (主控者)
+                <span>👑 25016 (主控者)</span>
+                <span className="text-[10px] text-amber-600 font-normal">スーパー管理者</span>
               </button>
               <button
                 type="button"
                 onClick={() => fillCredential('98014', 'A123456789')}
-                className="w-full inline-flex justify-center items-center py-2 px-3 border border-amber-300 rounded-md shadow-sm bg-amber-50 text-xs font-semibold text-amber-800 hover:bg-amber-100"
+                className="w-full inline-flex flex-col justify-center items-center py-2 px-3 border border-amber-300 rounded-md shadow-sm bg-amber-50 text-xs font-semibold text-amber-800 hover:bg-amber-100"
               >
-                👑 98014 (主管主控)
+                <span>👑 98014 (主管主控)</span>
+                <span className="text-[10px] text-amber-600 font-normal">スーパー管理者</span>
               </button>
             </div>
           </div>

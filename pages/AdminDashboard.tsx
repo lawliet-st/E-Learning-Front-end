@@ -241,12 +241,13 @@ const AdminDashboard: React.FC = () => {
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-6 rounded-3xl text-white shadow-xl">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-wide">戰情室 (Admin War Room)</h1>
+            <h1 className="text-2xl font-bold tracking-wide">戰情室</h1>
+            <span className="text-xs font-semibold text-indigo-300 bg-white/10 px-2.5 py-0.5 rounded-md">ダッシュボード (Executive Cockpit)</span>
             <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-brand-500/30 text-brand-300 border border-brand-400/40">
               Executive BI
             </span>
           </div>
-          <p className="text-xs text-indigo-200/80 mt-1">組織學習成效監控、專業主管呈核報告與多維度課程數據指標。</p>
+          <p className="text-xs text-indigo-200/80 mt-1">組織學習成效監控、專業主管呈核報告與多維度課程數據指標。 <span className="text-indigo-300/60 font-normal">/ 人材育成進捗・組織KPI分析</span></p>
         </div>
 
         {/* Executive Report Entry Buttons */}
@@ -256,7 +257,7 @@ const AdminDashboard: React.FC = () => {
             className="flex items-center gap-1.5 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-md"
             title="開啟主管呈核專用當月訓練成果報告"
           >
-            <Calendar className="h-4 w-4 text-brand-200" /> 呈核當月報表
+            <Calendar className="h-4 w-4 text-brand-200" /> 呈核當月報表 <span className="text-[10px] font-normal opacity-80">/ 月次報告書</span>
           </button>
 
           <button 
@@ -264,7 +265,7 @@ const AdminDashboard: React.FC = () => {
             className="flex items-center gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-md"
             title="開啟主管呈核專用年度學習戰略分析總表"
           >
-            <FileSpreadsheet className="h-4 w-4 text-purple-200" /> 呈核年度總表
+            <FileSpreadsheet className="h-4 w-4 text-purple-200" /> 呈核年度總表 <span className="text-[10px] font-normal opacity-80">/ 年次総括表</span>
           </button>
 
           <button 
@@ -277,7 +278,7 @@ const AdminDashboard: React.FC = () => {
             className="flex items-center gap-1.5 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-md"
             title="先選取指定必修課程，再抓取並匯出未完成學員名單"
           >
-            <AlertCircle className="h-4 w-4" /> 必修未完成名單
+            <AlertCircle className="h-4 w-4" /> 必修未完成名單 <span className="text-[10px] font-normal opacity-80">/ 未修了者</span>
           </button>
         </div>
       </div>
@@ -286,7 +287,7 @@ const AdminDashboard: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-between">
           <div>
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">組織平均測驗成績</span>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">組織平均測驗成績 / 平均テスト点</span>
             <p className="text-3xl font-black text-slate-900 mt-1">{globalAverage} <span className="text-base font-normal text-slate-500">分</span></p>
           </div>
           <div className="p-3 bg-brand-50 text-brand-600 rounded-2xl">
@@ -296,7 +297,7 @@ const AdminDashboard: React.FC = () => {
 
         <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-between">
           <div>
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">在職受訓員工數</span>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">在職受訓員工數 / 受講社員数</span>
             <p className="text-3xl font-black text-slate-900 mt-1">{metrics.length} <span className="text-base font-normal text-slate-500">人</span></p>
           </div>
           <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl">
@@ -306,7 +307,7 @@ const AdminDashboard: React.FC = () => {
 
         <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-between">
           <div>
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">線上課程總數</span>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">線上課程總數 / 開講コース数</span>
             <p className="text-3xl font-black text-slate-900 mt-1">{courses.length} <span className="text-base font-normal text-slate-500">門</span></p>
           </div>
           <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl">
@@ -318,26 +319,26 @@ const AdminDashboard: React.FC = () => {
       {/* Monthly Dynamic Metric Cards */}
       <section className="bg-white p-6 rounded-3xl shadow-sm border border-gray-200">
         <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2 uppercase tracking-wide">
-          <Calendar className="h-4 w-4 text-brand-600" /> 本月新增營運數據
+          <Calendar className="h-4 w-4 text-brand-600" /> 本月新增營運數據 <span className="text-xs text-slate-400 font-normal">/ 今月の研修運営データ</span>
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-gradient-to-br from-blue-50/80 to-indigo-50/50 p-4 rounded-2xl border border-blue-100 flex items-center justify-between">
             <div>
-              <span className="text-xs text-blue-900 font-semibold">本月上架新課程</span>
+              <span className="text-xs text-blue-900 font-semibold">本月上架新課程 / 今月の新設コース</span>
               <p className="text-2xl font-black text-blue-900 mt-1">{dashboardStats.newCoursesThisMonth} <span className="text-xs font-normal text-blue-700">門</span></p>
             </div>
             <div className="p-2.5 bg-blue-500 text-white rounded-xl shadow-xs"><BookOpen className="h-5 w-5" /></div>
           </div>
           <div className="bg-gradient-to-br from-purple-50/80 to-indigo-50/50 p-4 rounded-2xl border border-purple-100 flex items-center justify-between">
             <div>
-              <span className="text-xs text-purple-900 font-semibold">本月新增題庫測驗</span>
+              <span className="text-xs text-purple-900 font-semibold">本月新增題庫測驗 / 今月の新規テスト</span>
               <p className="text-2xl font-black text-purple-900 mt-1">{dashboardStats.newQuizzesThisMonth} <span className="text-xs font-normal text-purple-700">組</span></p>
             </div>
             <div className="p-2.5 bg-purple-500 text-white rounded-xl shadow-xs"><ClipboardList className="h-5 w-5" /></div>
           </div>
           <div className="bg-gradient-to-br from-emerald-50/80 to-teal-50/50 p-4 rounded-2xl border border-emerald-100 flex items-center justify-between">
             <div>
-              <span className="text-xs text-emerald-900 font-semibold">本月新進人員</span>
+              <span className="text-xs text-emerald-900 font-semibold">本月新進人員 / 今月の新入社員</span>
               <p className="text-2xl font-black text-emerald-900 mt-1">{dashboardStats.newEmployeesThisMonth} <span className="text-xs font-normal text-emerald-700">位</span></p>
             </div>
             <div className="p-2.5 bg-emerald-500 text-white rounded-xl shadow-xs"><Users className="h-5 w-5" /></div>
