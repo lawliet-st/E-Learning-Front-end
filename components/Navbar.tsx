@@ -26,9 +26,9 @@ const Navbar: React.FC = () => {
             </Link>
           </div>
 
-          {/* Desktop Menu */}
+            {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
-            {user.role === 'admin' ? (
+            {(user.role === 'admin' || user.role === 'superadmin') ? (
               // Admin Menu
               <>
                 <Link to="/admin" className={isActive('/admin')}>戰情室</Link>
@@ -49,14 +49,21 @@ const Navbar: React.FC = () => {
               <div className="flex items-center gap-2">
                 <Avatar src={user.avatar} name={user.name} className="h-8 w-8 rounded-full border border-gray-200" />
                 <div className="flex flex-col">
-                  <span className="text-sm font-medium text-slate-700">{user.name}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm font-medium text-slate-700">{user.name}</span>
+                    {user.role === 'superadmin' && (
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                        👑 主控者
+                      </span>
+                    )}
+                    {user.role === 'admin' && (
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-300">
+                        🛡️ 管理者
+                      </span>
+                    )}
+                  </div>
                   <span className="text-xs text-gray-500">{user.title}</span>
                 </div>
-                {user.role === 'admin' && (
-                  <span title="管理員">
-                    <ShieldCheck className="h-4 w-4 text-brand-600" />
-                  </span>
-                )}
               </div>
               <button 
                 onClick={logout}
@@ -81,7 +88,7 @@ const Navbar: React.FC = () => {
       {isOpen && (
         <div className="md:hidden bg-white border-b border-gray-100">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-             {user.role === 'admin' ? (
+             {(user.role === 'admin' || user.role === 'superadmin') ? (
               <>
                 <Link to="/admin" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">戰情室</Link>
                 <Link to="/admin/create-course" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">課程管理</Link>

@@ -1,4 +1,4 @@
-export type Role = 'admin' | 'employee';
+export type Role = 'admin' | 'employee' | 'superadmin';
 
 export interface HoganDimension {
   label: string;

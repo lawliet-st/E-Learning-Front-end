@@ -42,6 +42,7 @@ interface StoreContextType {
   addUser: (user: User) => Promise<void>;
   updateUser: (user: User) => Promise<void>;
   deleteUser: (id: string) => Promise<void>;
+  updateUserRole: (userId: string, role: string) => Promise<boolean>;
 
   // Category Actions
   addCategory: (name: string) => Promise<void>;
@@ -130,7 +131,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     localStorage.setItem('nexus_user', JSON.stringify(data.user));
     setUser(data.user);
     
-    await fetchInitialData(data.access_token);
+    // 背景預載資料，不阻塞登入導向流程，達成秒進體驗（< 0.1秒）
+    fetchInitialData(data.access_token);
   };
 
   const logout = () => {
@@ -532,6 +534,36 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
+  const updateUserRole = async (userId: string, role: string): Promise<boolean> => {
+    const token = localStorage.getItem('nexus_token');
+    try {
+      const res = await fetch(`/api/users/${userId}/role`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ role })
+      });
+      if (res.ok) {
+        setAllUsers(prev => prev.map(u => u.id === userId ? { ...u, role: role as any } : u));
+        if (user && user.id === userId) {
+          const updated = { ...user, role: role as any };
+          setUser(updated);
+          localStorage.setItem('nexus_user', JSON.stringify(updated));
+        }
+        return true;
+      } else {
+        const err = await res.json();
+        alert(err.detail || '變更權限失敗');
+        return false;
+      }
+    } catch (e: any) {
+      alert(`連線伺服器失敗: ${e.message || e}`);
+      return false;
+    }
+  };
+
   // --- Getters ---
 
   const getCourseProgress = (courseId: string) => {
@@ -623,7 +655,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       courses, progress, allUsers, categories, announcements,
       submitQuiz, completeAssessment, submitSkillAssessment,
       addCourse, updateCourse, deleteCourse, duplicateCourse, setCourseStatus,
-      addUser, updateUser, deleteUser,
+      addUser, updateUser, deleteUser, updateUserRole,
       addCategory, updateCategory, deleteCategory,
       addAnnouncement, updateAnnouncement, deleteAnnouncement,
       getCourseProgress, getQuizCooldownStatus, getAllUserMetrics, getUserById, getDashboardStats
